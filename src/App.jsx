@@ -4,13 +4,13 @@ import {
   ChevronRight, Star, Flame, BarChart3, ChevronLeft, Award, 
   Dumbbell, Sun, Moon, Coffee, Brain, Zap, Timer, Play, Pause, RotateCcw,
   Bell, Smartphone, X, Landmark, GraduationCap, PenTool, Hash, Edit3, Save, Plus,
-  History, Palette, Sparkles, Layout, RefreshCw
+  History, Palette, Sparkles, Layout, RefreshCw, Feather
 } from 'lucide-react';
 
-// --- 版本号 (每次您修改代码发布时，手动改一下这个数字，用户就知道更新了) ---
-const APP_VERSION = "v3.1"; 
+// --- 版本号 ---
+const APP_VERSION = "v4.0"; 
 
-// --- 励志文案库 (系统自动分配) ---
+// --- 励志文案库 ---
 const MOTIVATIONAL_QUOTES = [
   "现在的关键不在于计划的完美，而在于执行的坚决。",
   "你背不下来的书，总有人能背下来；你做不出来的题，总有人能做出来。",
@@ -24,9 +24,10 @@ const MOTIVATIONAL_QUOTES = [
   "种一棵树最好的时间是十年前，其次是现在。"
 ];
 
-// --- 默认配置模板 ---
+// --- 默认配置模板 (新增自定义) ---
 const DEFAULT_CONFIGS = {
   kaogong: {
+    id: 'kaogong',
     name: '公务员考试',
     icon: Landmark,
     countdownPresets: [120, 150],
@@ -37,6 +38,7 @@ const DEFAULT_CONFIGS = {
     ]
   },
   kaoyan: {
+    id: 'kaoyan',
     name: '研究生考试',
     icon: GraduationCap,
     countdownPresets: [180],
@@ -47,6 +49,7 @@ const DEFAULT_CONFIGS = {
     ]
   },
   jiauzi: {
+    id: 'jiauzi',
     name: '教师资格证',
     icon: BookOpen,
     countdownPresets: [120],
@@ -56,6 +59,7 @@ const DEFAULT_CONFIGS = {
     ]
   },
   certificate: {
+    id: 'certificate',
     name: '职业资格证',
     icon: Award,
     countdownPresets: [90, 120],
@@ -63,16 +67,26 @@ const DEFAULT_CONFIGS = {
       { time: '19:00', content: '核心考点背诵' },
       { time: '21:00', content: '历年真题演练' }
     ]
+  },
+  custom: {
+    id: 'custom',
+    name: '自定义考试', // 用户可修改
+    icon: PenTool,
+    countdownPresets: [60, 90, 120],
+    defaultPlan: [
+      { time: '08:00', content: '早安，开始新的挑战' },
+      { time: '20:00', content: '晚安，复盘今日所学' }
+    ]
   }
 };
 
-// --- 高级主题预设 ---
+// --- 高级主题预设 (全新审美) ---
 const THEME_PRESETS = [
-  { name: '静谧深海 (默认)', primary: '#0f172a', accent: '#38bdf8', badge: '#fbbf24', text: '#1e293b', bg: '#f1f5f9' },
-  { name: '森之呼吸', primary: '#14532d', accent: '#4ade80', badge: '#facc15', text: '#1a2e05', bg: '#f0fdf4' },
-  { name: '极简黑白', primary: '#000000', accent: '#666666', badge: '#000000', text: '#000000', bg: '#ffffff' },
-  { name: '落日余晖', primary: '#9a3412', accent: '#fb923c', badge: '#fde047', text: '#431407', bg: '#fff7ed' },
-  { name: '皇家紫金', primary: '#581c87', accent: '#c084fc', badge: '#fde047', text: '#3b0764', bg: '#faf5ff' },
+  { name: '极简白 (Minimalist)', primary: '#FFFFFF', accent: '#007AFF', badge: '#FF9500', text: '#1D1D1F', bg: '#F2F2F7', cardBg: '#FFFFFF' },
+  { name: '暗夜黑 (Midnight)', primary: '#1C1C1E', accent: '#0A84FF', badge: '#FFD60A', text: '#F5F5F7', bg: '#000000', cardBg: '#1C1C1E' },
+  { name: '抹茶绿 (Matcha)', primary: '#F2FCE2', accent: '#3F6212', badge: '#EAB308', text: '#1A2F0A', bg: '#ECFCCB', cardBg: '#FFFFFF' },
+  { name: '迷雾灰 (Fog)', primary: '#E5E7EB', accent: '#374151', badge: '#F59E0B', text: '#111827', bg: '#F9FAFB', cardBg: '#FFFFFF' },
+  { name: '落日橘 (Sunset)', primary: '#FFF7ED', accent: '#EA580C', badge: '#FBBF24', text: '#431407', bg: '#FFEDD5', cardBg: '#FFFFFF' },
 ];
 
 const ALARM_SOUND = "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
@@ -83,41 +97,34 @@ const getBeijingDate = () => {
   return new Date(utc + (3600000 * 8));
 };
 
-// --- 开屏动画 ---
+// --- 开屏动画 (浮现效果) ---
 const SplashScreen = ({ onFinish }) => {
-  const [text, setText] = useState('');
-  const fullText = "就这样备考，你的专属定制化备考app";
-  const [opacity, setOpacity] = useState(1);
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
-    let idx = 0;
-    const interval = setInterval(() => {
-      if (idx <= fullText.length) {
-        setText(fullText.slice(0, idx));
-        idx++;
-      } else {
-        clearInterval(interval);
-        setTimeout(() => {
-          setOpacity(0);
-          setTimeout(onFinish, 800); // Wait for fade out
-        }, 1000);
-      }
-    }, 100);
-    return () => clearInterval(interval);
+    // 0: start, 1: line1 show, 2: line2 show, 3: fade out
+    setTimeout(() => setStep(1), 500);
+    setTimeout(() => setStep(2), 1500);
+    setTimeout(() => setStep(3), 3000);
+    setTimeout(onFinish, 3800);
   }, []);
 
-  if (opacity === 0) return null;
+  if (step === 4) return null;
 
   return (
     <div 
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white transition-opacity duration-700"
-      style={{ opacity }}
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white transition-opacity duration-1000 ${step === 3 ? 'opacity-0' : 'opacity-100'}`}
     >
-      <div className="p-4 bg-black rounded-2xl mb-6 shadow-2xl">
-        <Sparkles className="w-12 h-12 text-yellow-400 animate-pulse" />
+      <div className={`transition-all duration-1000 transform ${step >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        <div className="p-4 bg-gray-900 rounded-3xl mb-6 shadow-2xl mx-auto w-fit">
+          <Feather className="w-12 h-12 text-white" />
+        </div>
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight text-center">就这样备考</h1>
       </div>
-      <h1 className="text-xl font-bold text-gray-800 tracking-widest">{text}<span className="animate-blink">|</span></h1>
-      <style>{`.animate-blink { animation: blink 1s infinite; } @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }`}</style>
+      
+      <div className={`mt-4 transition-all duration-1000 delay-300 transform ${step >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        <p className="text-sm font-medium text-gray-500 tracking-widest uppercase">你的专属定制化 App</p>
+      </div>
     </div>
   );
 };
@@ -126,27 +133,27 @@ const SplashScreen = ({ onFinish }) => {
 const BadgeWall = ({ count, color }) => {
   if (count === 0) return null;
   return (
-    <div className="flex flex-wrap justify-center gap-2 mt-6 animate-fadeIn max-w-[80%] mx-auto">
+    <div className="flex flex-wrap justify-center gap-3 mt-8 animate-fadeIn max-w-[90%] mx-auto">
       {[...Array(count)].map((_, i) => (
         <div key={i} className="relative group animate-popIn" style={{ animationDelay: `${i * 0.05}s` }}>
-          <Award className="w-6 h-6 drop-shadow-md" style={{ color: color }} fill="currentColor" />
+          <Award className="w-6 h-6 drop-shadow-sm" style={{ color: color }} fill="currentColor" />
         </div>
       ))}
-      <div className="w-full text-center text-xs mt-2 opacity-60 font-medium tracking-wide">
+      <div className="w-full text-center text-[10px] mt-3 opacity-50 font-medium tracking-wider">
         已获得 {count} 枚专注徽章
       </div>
     </div>
   );
 };
 
-// --- 计时器组件 (修正居中与历史记录) ---
+// --- 计时器组件 (完美居中修复 + 历史记忆) ---
 const TimerView = ({ theme, examType, badges, onAddBadge }) => {
   const [mode, setMode] = useState('stopwatch'); 
   const [isActive, setIsActive] = useState(false);
   const [displaySeconds, setDisplaySeconds] = useState(0);
   const [countdownInitial, setCountdownInitial] = useState(0);
   const [customMinutes, setCustomMinutes] = useState(30);
-  const [historyMinutes, setHistoryMinutes] = useState(null); // 历史记录
+  const [historyMinutes, setHistoryMinutes] = useState(null); 
   
   const startTimeRef = useRef(0);
   const endTimeRef = useRef(0);
@@ -159,7 +166,8 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
     if (savedHistory) setHistoryMinutes(parseInt(savedHistory));
   }, []);
 
-  const presets = DEFAULT_CONFIGS[examType]?.countdownPresets || [60];
+  const currentConfig = DEFAULT_CONFIGS[examType] || DEFAULT_CONFIGS['kaogong'];
+  const presets = currentConfig.countdownPresets;
 
   const startTimer = () => {
     if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission();
@@ -212,7 +220,6 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
     setCountdownInitial(mins * 60);
     setDisplaySeconds(mins * 60);
     setIsActive(false);
-    // Save to history if not standard
     if (!presets.includes(mins)) {
       setHistoryMinutes(mins);
       localStorage.setItem('timer_history', mins);
@@ -229,62 +236,62 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
   return (
     <div className="pb-24 space-y-6 animate-fadeIn">
       <div 
-        className="rounded-3xl p-8 shadow-xl relative overflow-hidden transition-all duration-500 flex flex-col items-center"
-        style={{ backgroundColor: theme.primary }}
+        className="rounded-[2rem] p-8 shadow-xl relative overflow-hidden transition-all duration-500 flex flex-col items-center justify-center min-h-[360px]"
+        style={{ backgroundColor: theme.cardBg === '#FFFFFF' && theme.bg !== '#000000' ? '#FFFFFF' : theme.cardBg }}
       >
-        <div className="absolute top-0 left-0 w-full h-1.5" style={{ backgroundColor: theme.accent, opacity: 0.5 }}></div>
+        {/* 背景装饰 */}
+        <div className="absolute top-0 left-0 w-full h-2 opacity-20" style={{ backgroundColor: theme.accent }}></div>
+        <div className="absolute bottom-0 right-0 w-32 h-32 rounded-full opacity-5 blur-3xl" style={{ backgroundColor: theme.accent }}></div>
         
-        <div className="flex justify-center gap-3 mb-10 bg-white/10 p-1.5 rounded-full w-fit backdrop-blur-md border border-white/10">
+        <div className="flex justify-center gap-1 mb-12 bg-gray-100/50 p-1.5 rounded-full w-fit backdrop-blur-md">
           <button 
             onClick={() => { setMode('stopwatch'); setIsActive(false); setDisplaySeconds(0); }}
-            className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${mode === 'stopwatch' ? 'text-white shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}
-            style={mode === 'stopwatch' ? { backgroundColor: theme.accent } : {}}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${mode === 'stopwatch' ? 'bg-white shadow-md scale-100 text-black' : 'text-gray-400 hover:text-gray-600'}`}
           >
             正计时
           </button>
           <button 
             onClick={() => { setMode('countdown'); setIsActive(false); setDisplaySeconds(countdownInitial || presets[0]*60); }}
-            className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${mode === 'countdown' ? 'text-white shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}
-            style={mode === 'countdown' ? { backgroundColor: theme.accent } : {}}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${mode === 'countdown' ? 'bg-white shadow-md scale-100 text-black' : 'text-gray-400 hover:text-gray-600'}`}
           >
             倒计时
           </button>
         </div>
 
-        {/* 修复：使用 text-center 和 w-full 确保居中 */}
-        <div className="w-full text-center">
-          <div className="font-mono text-7xl font-bold tracking-tight mb-2 tabular-nums drop-shadow-lg transition-colors" style={{ color: theme.accent }}>
+        {/* 完美居中容器 */}
+        <div className="flex flex-col items-center justify-center w-full">
+          <div className="font-mono text-[4.5rem] leading-none font-bold tracking-tight mb-3 tabular-nums drop-shadow-sm transition-colors text-center w-full" style={{ color: theme.text }}>
             {formatTime(displaySeconds)}
           </div>
-          <p className="text-white/50 text-xs font-medium tracking-widest uppercase">
-            {isActive ? (mode === 'stopwatch' ? 'F O C U S I N G' : 'R U N N I N G') : 'P A U S E D'}
+          <p className="text-xs font-bold tracking-[0.2em] uppercase opacity-40" style={{ color: theme.text }}>
+            {isActive ? (mode === 'stopwatch' ? '专 注 中' : '进 行 中') : '已 暂 停'}
           </p>
         </div>
 
         {mode === 'stopwatch' && <BadgeWall count={badges} color={theme.badge} />}
 
-        <div className="flex justify-center gap-8 items-center mt-10">
+        <div className="flex justify-center gap-8 items-center mt-12 w-full">
           <button 
             onClick={isActive ? pauseTimer : startTimer}
-            className="w-24 h-24 rounded-full flex items-center justify-center text-white shadow-2xl active:scale-95 transition-all border-[6px] border-white/10 hover:border-white/20"
+            className="w-20 h-20 rounded-full flex items-center justify-center text-white shadow-2xl active:scale-95 transition-all hover:scale-105"
             style={{ backgroundColor: theme.accent }}
           >
-            {isActive ? <Pause className="w-10 h-10 fill-current" /> : <Play className="w-10 h-10 fill-current ml-1" />}
+            {isActive ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current ml-1" />}
           </button>
           <button 
             onClick={resetTimer}
-            className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center shadow-lg active:scale-95 transition-all hover:bg-white/20 border border-white/5"
-            style={{ color: 'white' }}
+            className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all hover:bg-gray-50 border border-gray-100"
+            style={{ backgroundColor: theme.cardBg, color: theme.text }}
           >
-            <RotateCcw className="w-6 h-6" />
+            <RotateCcw className="w-5 h-5" />
           </button>
         </div>
       </div>
 
       {mode === 'countdown' && (
-        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm animate-slideUp">
-          <h3 className="font-bold mb-4 flex items-center gap-2 text-gray-800">
-            <Clock className="w-5 h-5" style={{ color: theme.accent }} /> 快速设定
+        <div className="rounded-3xl p-6 border shadow-sm animate-slideUp" style={{ backgroundColor: theme.cardBg, borderColor: 'rgba(0,0,0,0.05)' }}>
+          <h3 className="font-bold mb-5 flex items-center gap-2 text-sm opacity-80" style={{ color: theme.text }}>
+            <Clock className="w-4 h-4" style={{ color: theme.accent }} /> 模考时长选择
           </h3>
           
           <div className="flex flex-wrap gap-3 mb-6">
@@ -292,47 +299,45 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
               <button
                 key={min}
                 onClick={() => setPreset(min)}
-                className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all border-2 flex-1 min-w-[80px]`}
+                className={`px-5 py-3 rounded-2xl text-sm font-bold transition-all border-2 flex-1 min-w-[80px] shadow-sm active:scale-95`}
                 style={
                   displaySeconds === min * 60 && !isActive
-                  ? { backgroundColor: `${theme.accent}10`, color: theme.accent, borderColor: theme.accent }
-                  : { backgroundColor: 'transparent', color: '#666', borderColor: '#eee' }
+                  ? { backgroundColor: theme.accent, color: '#fff', borderColor: theme.accent }
+                  : { backgroundColor: 'transparent', color: theme.text, borderColor: 'rgba(0,0,0,0.1)' }
                 }
               >
-                {min}m
+                {min}分
               </button>
             ))}
             {/* 历史记录按钮 */}
             {historyMinutes && !presets.includes(historyMinutes) && (
               <button
                 onClick={() => setPreset(historyMinutes)}
-                className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all border-2 flex-1 min-w-[80px] flex items-center justify-center gap-1`}
+                className={`px-5 py-3 rounded-2xl text-sm font-bold transition-all border-2 flex-1 min-w-[80px] flex items-center justify-center gap-1 shadow-sm active:scale-95`}
                 style={
                   displaySeconds === historyMinutes * 60 && !isActive
-                  ? { backgroundColor: `${theme.accent}10`, color: theme.accent, borderColor: theme.accent }
-                  : { backgroundColor: 'transparent', color: '#666', borderColor: '#eee' }
+                  ? { backgroundColor: theme.accent, color: '#fff', borderColor: theme.accent }
+                  : { backgroundColor: 'transparent', color: theme.text, borderColor: 'rgba(0,0,0,0.1)' }
                 }
               >
-                <History className="w-3 h-3" /> {historyMinutes}m
+                <History className="w-3 h-3" /> {historyMinutes}分
               </button>
             )}
           </div>
 
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-gray-400 text-xs">自定义</span>
-            </div>
             <input 
               type="number" 
+              placeholder="自定义时长..."
               value={customMinutes}
               onChange={(e) => setCustomMinutes(Number(e.target.value))}
-              className="w-full bg-gray-50 border-2 border-transparent rounded-xl py-3 pl-16 pr-20 text-lg font-bold outline-none focus:bg-white transition-colors"
+              className="w-full bg-gray-50/50 border-2 border-transparent rounded-2xl py-4 pl-5 pr-24 text-lg font-bold outline-none focus:bg-white focus:border-gray-200 transition-all"
               style={{ color: theme.text }}
             />
             <button 
               onClick={() => setPreset(customMinutes)}
-              className="absolute right-1 top-1 bottom-1 px-4 rounded-lg font-bold text-sm text-white shadow-sm active:scale-95 transition-transform"
-              style={{ backgroundColor: theme.primary }}
+              className="absolute right-2 top-2 bottom-2 px-5 rounded-xl font-bold text-sm text-white shadow-md active:scale-95 transition-transform"
+              style={{ backgroundColor: theme.accent }}
             >
               开始
             </button>
@@ -349,7 +354,6 @@ const SmartPlanEditor = ({ schedule, setSchedule, theme, onClose }) => {
   const [selectedDay, setSelectedDay] = useState(1);
   const [importText, setImportText] = useState('');
 
-  // 确保选中天数的数据存在
   const currentDayPlan = schedule.find(d => d.day === selectedDay) || { tasks: [] };
 
   const updateTask = (idx, field, value) => {
@@ -389,7 +393,6 @@ const SmartPlanEditor = ({ schedule, setSchedule, theme, onClose }) => {
     const lines = importText.split('\n').filter(line => line.trim() !== '');
     if (lines.length === 0) return alert('请输入内容');
     const newTasks = lines.map((line, idx) => ({ time: `任务${idx+1}`, content: line.trim() }));
-    // 覆盖所有天数（简单逻辑，实际可优化）
     const newSchedule = schedule.map(day => ({ ...day, tasks: newTasks }));
     if(window.confirm('这将覆盖所有日期的计划，确定吗？')) {
       setSchedule(newSchedule);
@@ -400,8 +403,8 @@ const SmartPlanEditor = ({ schedule, setSchedule, theme, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 bg-gray-50 flex flex-col animate-slideUp">
       <div className="p-4 border-b flex justify-between items-center shadow-sm z-10" style={{ backgroundColor: theme.primary }}>
-        <h2 className="font-bold text-white text-lg flex items-center gap-2"><Edit3 className="w-5 h-5"/> 编辑计划</h2>
-        <button onClick={onClose} className="p-2 bg-white/20 rounded-full text-white active:scale-90 transition-transform"><X className="w-5 h-5"/></button>
+        <h2 className="font-bold text-lg flex items-center gap-2" style={{ color: theme.name === '暗夜黑 (Midnight)' ? 'white' : theme.text }}><Edit3 className="w-5 h-5"/> 编辑计划</h2>
+        <button onClick={onClose} className="p-2 bg-black/10 rounded-full active:scale-90 transition-transform"><X className="w-5 h-5" style={{ color: theme.name === '暗夜黑 (Midnight)' ? 'white' : theme.text }}/></button>
       </div>
 
       <div className="flex bg-white shadow-sm mb-2">
@@ -412,28 +415,25 @@ const SmartPlanEditor = ({ schedule, setSchedule, theme, onClose }) => {
       <div className="flex-1 overflow-hidden flex flex-col">
         {activeTab === 'interactive' ? (
           <>
-            {/* 日期滑动选择器 */}
-            <div className="bg-white p-2 shadow-sm z-0">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x">
+            <div className="bg-white p-3 shadow-sm z-0 border-b border-gray-100">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x px-2">
                 {schedule.map((day) => (
                   <button 
                     key={day.day}
                     onClick={() => setSelectedDay(day.day)}
-                    className={`flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center snap-center transition-all border-2 ${selectedDay === day.day ? 'shadow-md scale-105' : 'border-transparent bg-gray-50 opacity-60'}`}
+                    className={`flex-shrink-0 w-16 h-20 rounded-2xl flex flex-col items-center justify-center snap-center transition-all border-2 ${selectedDay === day.day ? 'shadow-lg scale-105' : 'border-transparent bg-gray-50 opacity-60'}`}
                     style={selectedDay === day.day ? { borderColor: theme.accent, backgroundColor: 'white' } : {}}
                   >
-                    <span className="text-[10px] text-gray-400 font-bold">DAY</span>
-                    <span className="text-xl font-bold font-mono" style={{ color: selectedDay === day.day ? theme.accent : '#999' }}>{day.day}</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Day</span>
+                    <span className="text-2xl font-black font-mono" style={{ color: selectedDay === day.day ? theme.accent : '#999' }}>{day.day}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* 任务编辑区 */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {currentDayPlan.tasks.map((task, idx) => (
-                <div key={idx} className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center animate-fadeIn">
-                  {/* 原生时间选择器 (Time Picker) */}
+                <div key={idx} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-4 items-center animate-fadeIn">
                   <div className="relative">
                     <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none">
                       <Clock className="w-3 h-3 text-gray-400"/>
@@ -442,34 +442,34 @@ const SmartPlanEditor = ({ schedule, setSchedule, theme, onClose }) => {
                       type="time" 
                       value={task.time.includes(':') ? task.time : '08:00'}
                       onChange={(e) => updateTask(idx, 'time', e.target.value)}
-                      className="w-24 pl-6 pr-2 py-2 bg-gray-50 border-0 rounded-lg text-sm font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100"
+                      className="w-24 pl-7 pr-2 py-2 bg-gray-50 border-0 rounded-xl text-sm font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-100 transition-shadow"
                     />
                   </div>
                   <input 
                     type="text" 
                     value={task.content}
                     onChange={(e) => updateTask(idx, 'content', e.target.value)}
-                    placeholder="输入学习任务..."
-                    className="flex-1 py-2 bg-transparent border-b border-gray-100 focus:border-blue-400 outline-none text-sm text-gray-700"
+                    placeholder="输入任务内容..."
+                    className="flex-1 py-2 bg-transparent border-b border-gray-100 focus:border-blue-400 outline-none text-sm text-gray-700 font-medium"
                   />
-                  <button onClick={() => removeTask(idx)} className="p-2 text-gray-300 hover:text-red-500"><X className="w-4 h-4"/></button>
+                  <button onClick={() => removeTask(idx)} className="p-2 text-gray-300 hover:text-red-500 transition-colors"><X className="w-5 h-5"/></button>
                 </div>
               ))}
               
               <button 
                 onClick={addTask}
-                className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-400 font-bold text-sm flex items-center justify-center gap-2 hover:border-gray-400 hover:text-gray-500 transition-colors"
+                className="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-400 font-bold text-sm flex items-center justify-center gap-2 hover:border-gray-400 hover:text-gray-500 transition-all hover:bg-gray-50"
               >
-                <Plus className="w-4 h-4"/> 添加任务
+                <Plus className="w-5 h-5"/> 添加新任务
               </button>
             </div>
           </>
         ) : (
           <div className="p-4 h-full flex flex-col">
             <textarea 
-              className="flex-1 w-full p-4 border rounded-xl resize-none focus:outline-none focus:ring-2 text-sm leading-relaxed"
+              className="flex-1 w-full p-4 border rounded-2xl resize-none focus:outline-none focus:ring-2 text-sm leading-relaxed"
               style={{ '--tw-ring-color': theme.primary }}
-              placeholder={`支持直接粘贴 Word 内容：\n\n8:00 背诵50个单词\n9:00 做一套真题\n14:00 复盘错题\n...`}
+              placeholder={`请直接粘贴文本内容：\n\n8:00 晨读\n9:00 刷题\n...`}
               value={importText}
               onChange={e => setImportText(e.target.value)}
             />
@@ -478,7 +478,7 @@ const SmartPlanEditor = ({ schedule, setSchedule, theme, onClose }) => {
               className="w-full py-4 mt-4 rounded-xl text-white font-bold shadow-lg active:scale-95 transition-transform"
               style={{ backgroundColor: theme.accent }}
             >
-              一键生成计划
+              一键生成
             </button>
           </div>
         )}
@@ -493,6 +493,7 @@ export default function ExamPrepApp() {
   const [currentView, setCurrentView] = useState('dashboard');
   
   const [examType, setExamType] = useState('kaogong');
+  const [customExamName, setCustomExamName] = useState('自定义考试'); // 专门存储自定义名字
   const [targetDate, setTargetDate] = useState('2026-03-14');
   const [theme, setTheme] = useState(THEME_PRESETS[0]);
   
@@ -506,50 +507,38 @@ export default function ExamPrepApp() {
 
   // --- 初始化 ---
   useEffect(() => {
-    const savedConfig = JSON.parse(localStorage.getItem('user_config_v3') || '{}');
+    const savedConfig = JSON.parse(localStorage.getItem('user_config_v4') || '{}');
     if (savedConfig.theme) setTheme(savedConfig.theme);
     if (savedConfig.examType) setExamType(savedConfig.examType);
+    if (savedConfig.customExamName) setCustomExamName(savedConfig.customExamName); // 读取自定义名
     if (savedConfig.targetDate) setTargetDate(savedConfig.targetDate);
     if (savedConfig.badges) setBadges(savedConfig.badges);
     
-    const savedSchedule = JSON.parse(localStorage.getItem('user_schedule_v3'));
+    const savedSchedule = JSON.parse(localStorage.getItem('user_schedule_v4'));
     if (savedSchedule) {
       setSchedule(savedSchedule);
     } else {
       generateSchedule(savedConfig.examType || 'kaogong');
     }
-    setCompletedTasks(JSON.parse(localStorage.getItem('completed_tasks_v3') || '{}'));
+    setCompletedTasks(JSON.parse(localStorage.getItem('completed_tasks_v4') || '{}'));
   }, []);
 
-  // --- 自动提醒核心逻辑 ---
+  // --- 自动提醒 ---
   useEffect(() => {
     if ('Notification' in window && Notification.permission !== 'granted') return;
-
     const checkReminders = () => {
       const now = new Date();
-      // 获取当前时分 "08:30"
       const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-      
-      // 获取今天的计划
-      // 简单起见，假设 Day 1 是开始使用的第一天，实际可以用 startDate 计算差值
-      // 这里为了演示，永远检查 schedule[0] 即第一天的任务，或者你需要更复杂的日期映射
       const todayTasks = schedule[0]?.tasks || [];
-
       todayTasks.forEach((task, idx) => {
-        // 假设 task.time 是 "08:30"
         const key = `notified_${new Date().toDateString()}_${idx}`;
         if (task.time === timeStr && !sessionStorage.getItem(key)) {
-          new Notification("学习提醒 🔔", { 
-            body: `是时候开始：${task.content}`,
-            icon: '/vite.svg',
-            vibrate: [200, 100, 200]
-          });
+          new Notification("学习提醒 🔔", { body: `是时候开始：${task.content}`, icon: '/vite.svg', vibrate: [200, 100, 200] });
           sessionStorage.setItem(key, 'true');
         }
       });
     };
-
-    const interval = setInterval(checkReminders, 20000); // 20秒检查一次
+    const interval = setInterval(checkReminders, 20000);
     return () => clearInterval(interval);
   }, [schedule]);
 
@@ -564,11 +553,11 @@ export default function ExamPrepApp() {
   };
 
   useEffect(() => {
-    const config = { theme, examType, targetDate, badges };
-    localStorage.setItem('user_config_v3', JSON.stringify(config));
-    localStorage.setItem('user_schedule_v3', JSON.stringify(schedule));
-    localStorage.setItem('completed_tasks_v3', JSON.stringify(completedTasks));
-  }, [theme, examType, targetDate, badges, schedule, completedTasks]);
+    const config = { theme, examType, customExamName, targetDate, badges };
+    localStorage.setItem('user_config_v4', JSON.stringify(config));
+    localStorage.setItem('user_schedule_v4', JSON.stringify(schedule));
+    localStorage.setItem('completed_tasks_v4', JSON.stringify(completedTasks));
+  }, [theme, examType, customExamName, targetDate, badges, schedule, completedTasks]);
 
   const daysLeft = useMemo(() => {
     const today = getBeijingDate();
@@ -587,29 +576,29 @@ export default function ExamPrepApp() {
     setCompletedTasks(prev => ({ ...prev, [key]: newState }));
     if (newState) {
       setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 2000);
+      setTimeout(() => setShowConfetti(false), 2500);
       setXp(p => p + 50);
     }
   };
 
-  const handleRefresh = () => {
-    if(window.confirm('确定要检查更新吗？这会刷新页面。')) {
-      window.location.reload(true);
-    }
-  };
+  const handleRefresh = () => { if(window.confirm('确定要检查更新吗？')) window.location.reload(true); };
 
   if (loading) return <SplashScreen onFinish={() => setLoading(false)} />;
+
+  // 获取当前考试名称（如果是自定义，则使用用户输入的名字）
+  const currentExamName = examType === 'custom' ? customExamName : DEFAULT_CONFIGS[examType]?.name;
 
   return (
     <div className="min-h-screen font-sans max-w-md mx-auto relative shadow-2xl overflow-hidden" style={{ backgroundColor: theme.bg, color: theme.text }}>
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-          {[...Array(30)].map((_, i) => (
-            <div key={i} className="absolute animate-fall w-2 h-2 rounded-full" 
+          {[...Array(50)].map((_, i) => (
+            <div key={i} className="absolute animate-fall w-3 h-3 rounded-full" 
               style={{
                 left: `${Math.random() * 100}%`, top: `-20px`,
                 animationDuration: `${Math.random() * 2 + 1}s`,
-                backgroundColor: [theme.primary, theme.accent, theme.badge][Math.floor(Math.random()*3)]
+                // 庆典配色：鲜艳红、亮黄、荧光绿、电光蓝、猛男粉
+                backgroundColor: ['#FF2D55', '#FFCC00', '#4CD964', '#007AFF', '#FF3B30', '#5856D6'][Math.floor(Math.random()*6)]
               }} 
             />
           ))}
@@ -629,23 +618,23 @@ export default function ExamPrepApp() {
       <div className="h-screen overflow-y-auto scrollbar-hide">
         <div className="p-5 pt-8">
            {/* Header */}
-           <div className="flex justify-between items-center mb-6 animate-slideDown">
+           <div className="flex justify-between items-center mb-8 animate-slideDown">
              <div className="flex items-center gap-3">
-               <div className="p-2 rounded-xl shadow-lg transition-transform hover:scale-105" style={{ backgroundColor: theme.primary }}>
-                 <Layout className="w-6 h-6 text-white" />
+               <div className="p-2.5 rounded-2xl shadow-lg transition-transform hover:scale-105" style={{ backgroundColor: theme.primary }}>
+                 <Layout className="w-6 h-6" style={{ color: theme.accent }} />
                </div>
                <div>
-                 <h1 className="font-bold text-lg leading-none tracking-tight" style={{ color: theme.text }}>
+                 <h1 className="font-extrabold text-xl leading-none tracking-tight" style={{ color: theme.text }}>
                    就这样备考
                  </h1>
-                 <p className="text-[10px] font-bold tracking-widest uppercase mt-1 opacity-60">
-                   {DEFAULT_CONFIGS[examType]?.name}
+                 <p className="text-[10px] font-bold tracking-widest uppercase mt-1 opacity-50" style={{ color: theme.text }}>
+                   {currentExamName}
                  </p>
                </div>
              </div>
-             <div className="bg-white px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm border border-gray-100">
+             <div className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2 shadow-sm border border-black/5">
                <Award className="w-4 h-4" style={{ color: theme.badge }} />
-               <span className="text-xs font-bold text-gray-600">{xp}</span>
+               <span className="text-xs font-bold opacity-70">{xp}</span>
              </div>
            </div>
 
@@ -653,24 +642,21 @@ export default function ExamPrepApp() {
            {currentView === 'dashboard' && (
              <div className="animate-fadeIn pb-24 space-y-6">
                <div 
-                 className="rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all duration-500 group"
-                 style={{ backgroundColor: theme.primary }}
+                 className="rounded-[2rem] p-6 shadow-xl relative overflow-hidden transition-all duration-500 group min-h-[180px] flex flex-col justify-center"
+                 style={{ backgroundColor: theme.cardBg === '#FFFFFF' ? theme.primary : theme.cardBg }}
                >
-                 <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-                 <div className="flex justify-between items-start relative z-10">
+                 <div className="absolute top-0 right-0 w-48 h-48 bg-white opacity-10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                 <div className="flex justify-between items-center relative z-10">
                    <div>
-                     <p className="text-xs font-bold mb-1 tracking-wider uppercase text-white/60">距离上岸 ({targetDate})</p>
-                     <h1 className="text-5xl font-extrabold text-white">{daysLeft >= 0 ? daysLeft : 0}<span className="text-lg font-normal opacity-80 ml-1">天</span></h1>
-                     <p className="text-xs mt-3 font-medium text-white/80 flex items-center gap-1">
-                       <CheckCircle className="w-3 h-3"/> 今日完成 {Object.keys(completedTasks).filter(k => k.startsWith(`${currentDayData.day}-`)).length}/{currentDayData.tasks.length}
-                     </p>
+                     <p className="text-xs font-bold mb-1 tracking-wider uppercase opacity-60" style={{ color: theme.text }}>距离目标日</p>
+                     <h1 className="text-6xl font-black tracking-tighter" style={{ color: theme.accent }}>{daysLeft >= 0 ? daysLeft : 0}<span className="text-xl font-medium ml-1 opacity-60">天</span></h1>
                    </div>
-                   <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md shadow-inner border border-white/10">
-                     <Trophy className="w-6 h-6 text-yellow-300" />
+                   <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-md shadow-inner">
+                     <Trophy className="w-8 h-8" style={{ color: theme.badge }} />
                    </div>
                  </div>
-                 <div className="mt-6 pt-4 border-t border-white/10">
-                   <p className="text-sm italic font-medium leading-relaxed text-white/90">"{currentDayData.quote}"</p>
+                 <div className="mt-4 pt-4 border-t border-black/5">
+                   <p className="text-xs font-medium opacity-70 truncate" style={{ color: theme.text }}>"{currentDayData.quote}"</p>
                  </div>
                </div>
 
@@ -679,7 +665,7 @@ export default function ExamPrepApp() {
                    <h2 className="text-lg font-bold flex items-center gap-2" style={{ color: theme.text }}>
                      <Calendar className="w-5 h-5" style={{ color: theme.accent }} /> 今日计划
                    </h2>
-                   <button onClick={() => setIsEditingPlan(true)} className="text-xs font-bold px-3 py-1 bg-white rounded-full shadow-sm text-gray-500 hover:text-gray-800">调整计划</button>
+                   <button onClick={() => setIsEditingPlan(true)} className="text-xs font-bold px-4 py-1.5 bg-white rounded-full shadow-sm text-gray-500 hover:text-gray-800 transition-all active:scale-95">调整</button>
                  </div>
                  
                  {currentDayData.tasks.map((task, idx) => {
@@ -688,21 +674,21 @@ export default function ExamPrepApp() {
                      <div 
                        key={idx} 
                        onClick={() => toggleTask(currentDayData.day, idx)}
-                       className={`relative p-4 rounded-2xl border transition-all active:scale-98 duration-200 cursor-pointer shadow-sm group ${isDone ? 'bg-gray-100 border-transparent opacity-60' : 'bg-white border-white hover:border-blue-100 hover:shadow-md'}`}
+                       className={`relative p-5 rounded-3xl border-2 transition-all active:scale-98 duration-200 cursor-pointer shadow-sm group ${isDone ? 'bg-gray-50 border-transparent opacity-60 grayscale' : 'bg-white border-transparent hover:border-gray-100 hover:shadow-md'}`}
                      >
                        <div className="flex justify-between items-center">
-                         <div>
-                           <div className="flex items-center gap-2 mb-1">
-                             <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-gray-100 text-gray-500 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                         <div className="flex-1">
+                           <div className="flex items-center gap-3 mb-1">
+                             <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-gray-100 text-gray-500">
                                {task.time}
                              </span>
                            </div>
-                           <p className={`text-sm font-bold ${isDone ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                           <p className={`text-sm font-bold leading-relaxed ${isDone ? 'line-through' : ''}`} style={{ color: theme.text }}>
                              {task.content}
                            </p>
                          </div>
-                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isDone ? 'border-transparent' : 'border-gray-200 group-hover:border-blue-300'}`} style={isDone ? { backgroundColor: theme.primary } : {}}>
-                           {isDone && <CheckCircle className="w-4 h-4 text-white" />}
+                         <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${isDone ? 'border-transparent' : 'border-gray-200'}`} style={isDone ? { backgroundColor: theme.accent } : {}}>
+                           {isDone && <CheckCircle className="w-5 h-5 text-white" />}
                          </div>
                        </div>
                      </div>
@@ -716,17 +702,16 @@ export default function ExamPrepApp() {
              <div className="space-y-4 pb-24 animate-fadeIn">
                <h2 className="text-xl font-bold px-1" style={{ color: theme.text }}>全景作战地图</h2>
                {schedule.map((day, idx) => (
-                 <div key={idx} className="p-5 rounded-2xl bg-white shadow-sm border border-gray-50 hover:shadow-md transition-shadow">
-                   <div className="flex justify-between items-center mb-3 border-b border-gray-50 pb-2">
-                     <span className="font-bold text-sm" style={{ color: theme.accent }}>Day {day.day}</span>
-                     <span className="text-[10px] text-gray-400">Task Count: {day.tasks.length}</span>
+                 <div key={idx} className="p-5 rounded-3xl bg-white shadow-sm border border-gray-50 hover:shadow-md transition-all duration-300">
+                   <div className="flex justify-between items-center mb-4 border-b border-gray-50 pb-2">
+                     <span className="font-extrabold text-sm px-3 py-1 rounded-full bg-gray-50" style={{ color: theme.accent }}>Day {day.day}</span>
+                     <span className="text-[10px] font-bold text-gray-300 uppercase tracking-wider">Mission List</span>
                    </div>
-                   {/* 励志文案已隐藏，只显示干货任务 */}
-                   <div className="space-y-2">
+                   <div className="space-y-3">
                      {day.tasks.map((t, ti) => (
                        <div key={ti} className="text-xs flex gap-3 items-start">
-                         <span className="font-mono text-gray-400 min-w-[40px]">{t.time}</span>
-                         <span className="font-medium text-gray-700">{t.content}</span>
+                         <span className="font-mono text-gray-400 font-bold min-w-[40px] pt-0.5">{t.time}</span>
+                         <span className="font-medium text-gray-600 leading-relaxed">{t.content}</span>
                        </div>
                      ))}
                    </div>
@@ -746,68 +731,88 @@ export default function ExamPrepApp() {
 
            {currentView === 'settings' && (
              <div className="space-y-8 animate-fadeIn pb-24">
-                <section>
-                  <h3 className="font-bold mb-4 text-gray-900">备考项目</h3>
-                  <div className="grid grid-cols-2 gap-3">
+                <section className="bg-white p-6 rounded-[2rem] shadow-sm">
+                  <h3 className="font-bold mb-4 text-gray-900 text-lg">备考项目</h3>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
                     {Object.entries(DEFAULT_CONFIGS).map(([key, config]) => (
                       <button
                         key={key}
                         onClick={() => { setExamType(key); generateSchedule(key); }}
-                        className={`p-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all ${examType === key ? 'bg-white shadow-md' : 'bg-transparent border-transparent hover:bg-white/50'}`}
-                        style={examType === key ? { borderColor: theme.primary } : {}}
+                        className={`p-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all ${examType === key ? 'bg-gray-50' : 'bg-transparent border-transparent hover:bg-gray-50'}`}
+                        style={examType === key ? { borderColor: theme.accent } : {}}
                       >
-                        <config.icon className="w-8 h-8" style={{ color: examType === key ? theme.primary : '#ccc' }} />
+                        <config.icon className="w-6 h-6" style={{ color: examType === key ? theme.accent : '#ccc' }} />
                         <span className="text-xs font-bold text-gray-600">{config.name}</span>
                       </button>
                     ))}
                   </div>
+                  
+                  {examType === 'custom' && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <label className="text-xs font-bold text-gray-400 block mb-2">自定义考试名称</label>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          value={customExamName}
+                          onChange={(e) => setCustomExamName(e.target.value)}
+                          className="flex-1 bg-gray-50 border-0 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-gray-200"
+                          placeholder="例如：注册会计师"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </section>
 
-                <section>
-                  <h3 className="font-bold mb-4 text-gray-900">主题风格</h3>
-                  <div className="grid grid-cols-5 gap-2">
+                <section className="bg-white p-6 rounded-[2rem] shadow-sm">
+                  <h3 className="font-bold mb-4 text-gray-900 text-lg">主题风格</h3>
+                  <div className="grid grid-cols-5 gap-3">
                     {THEME_PRESETS.map((t, i) => (
                       <button 
                         key={i}
                         onClick={() => setTheme(t)}
-                        className={`w-full aspect-square rounded-full border-2 transition-transform hover:scale-110 shadow-sm ${theme.name === t.name ? 'ring-2 ring-offset-2 ring-gray-300' : 'border-transparent'}`}
+                        className={`w-full aspect-square rounded-full border transition-transform hover:scale-110 shadow-sm flex items-center justify-center ${theme.name === t.name ? 'ring-2 ring-offset-2 ring-gray-300 scale-110' : 'border-gray-100'}`}
                         style={{ backgroundColor: t.primary }}
                         title={t.name}
-                      />
+                      >
+                        {theme.name === t.name && <CheckCircle className="w-4 h-4 text-white drop-shadow-md" />}
+                      </button>
                     ))}
                   </div>
                   
-                  <div className="mt-4 p-4 bg-white rounded-xl shadow-sm space-y-3">
-                    <p className="text-xs font-bold text-gray-400 mb-2">自定义微调</p>
-                    {['primary', 'accent', 'badge'].map(key => (
-                      <div key={key} className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 capitalize">{key} Color</span>
-                        <input type="color" value={theme[key]} onChange={e => setTheme({...theme, [key]: e.target.value})} className="w-8 h-8 rounded cursor-pointer border-0"/>
-                      </div>
-                    ))}
+                  <div className="mt-6">
+                    <p className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Fine Tune (微调)</p>
+                    <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                      {['primary', 'accent', 'badge'].map(key => (
+                        <div key={key} className="flex-shrink-0 flex flex-col items-center gap-2">
+                          <div className="relative w-10 h-10 rounded-full overflow-hidden shadow-sm border border-gray-100">
+                            <input type="color" value={theme[key]} onChange={e => setTheme({...theme, [key]: e.target.value})} className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer"/>
+                          </div>
+                          <span className="text-[10px] text-gray-400 capitalize">{key}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </section>
 
-                <section>
-                  <h3 className="font-bold mb-4 text-gray-900">目标设定</h3>
-                  <div className="bg-white p-4 rounded-xl shadow-sm flex items-center justify-between">
-                    <span className="text-sm text-gray-600">考试日期</span>
+                <section className="bg-white p-6 rounded-[2rem] shadow-sm">
+                  <h3 className="font-bold mb-4 text-gray-900 text-lg">目标设定</h3>
+                  <div className="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
+                    <span className="text-sm text-gray-500 font-medium ml-2">考试日期</span>
                     <input 
                       type="date" 
                       value={targetDate}
                       onChange={(e) => setTargetDate(e.target.value)}
-                      className="bg-gray-50 border-0 rounded-lg p-2 text-sm font-bold text-gray-800 outline-none"
+                      className="bg-white border-0 rounded-lg py-2 px-3 text-sm font-bold text-gray-800 outline-none shadow-sm"
                     />
                   </div>
                 </section>
                 
-                <div className="text-center pt-8 border-t border-gray-100">
-                  <p className="text-[10px] text-gray-400 font-mono mb-2">JustPrep {APP_VERSION} · Stay Focused</p>
+                <div className="text-center pt-8 pb-4">
                   <button 
                     onClick={handleRefresh}
-                    className="text-xs flex items-center justify-center gap-1 mx-auto text-blue-500 font-bold bg-blue-50 px-3 py-1.5 rounded-full"
+                    className="text-xs flex items-center justify-center gap-2 mx-auto text-gray-400 font-bold bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors"
                   >
-                    <RefreshCw className="w-3 h-3" /> 检查更新
+                    <RefreshCw className="w-3 h-3" /> 检查更新 ({APP_VERSION})
                   </button>
                 </div>
              </div>
@@ -816,7 +821,7 @@ export default function ExamPrepApp() {
       </div>
 
       {/* 底部导航栏 */}
-      <div className="absolute bottom-0 left-0 right-0 px-6 py-4 flex justify-between items-center z-40 safe-area-bottom bg-white/90 backdrop-blur-lg border-t border-gray-100">
+      <div className="absolute bottom-0 left-0 right-0 px-8 py-5 flex justify-between items-center z-40 safe-area-bottom bg-white/90 backdrop-blur-lg border-t border-gray-100 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
         {[
           { id: 'dashboard', icon: Clock, label: '今日' },
           { id: 'schedule', icon: Calendar, label: '全景' },
@@ -826,12 +831,15 @@ export default function ExamPrepApp() {
           <button 
             key={item.id}
             onClick={() => setCurrentView(item.id)}
-            className={`flex flex-col items-center gap-1 transition-all duration-300 ${currentView === item.id ? '-translate-y-1' : 'opacity-50 hover:opacity-80'}`}
+            className={`flex flex-col items-center gap-1.5 transition-all duration-300 group ${currentView === item.id ? '-translate-y-1' : 'opacity-40 hover:opacity-70'}`}
           >
-            <div className={`p-1.5 rounded-xl transition-colors ${currentView === item.id ? 'bg-gray-100' : 'bg-transparent'}`}>
-              <item.icon className="w-6 h-6" style={{ color: currentView === item.id ? theme.accent : '#999' }} />
-            </div>
-            <span className="text-[10px] font-bold" style={{ color: currentView === item.id ? theme.accent : '#999' }}>{item.label}</span>
+            <item.icon 
+              className="w-6 h-6 transition-colors" 
+              style={{ color: currentView === item.id ? theme.accent : '#000' }} 
+              fill={currentView === item.id ? theme.accent : 'none'}
+              fillOpacity={currentView === item.id ? 0.2 : 0}
+            />
+            <span className="text-[10px] font-bold tracking-wide" style={{ color: currentView === item.id ? theme.accent : '#000' }}>{item.label}</span>
           </button>
         ))}
       </div>
