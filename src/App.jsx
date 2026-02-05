@@ -8,14 +8,13 @@ import {
 } from 'lucide-react';
 
 // --- 版本号 (升级触发弹窗) ---
-const APP_VERSION = "v4.4"; 
+const APP_VERSION = "v4.5"; 
 
 // --- 更新日志 ---
 const UPDATE_LOGS = [
-  { title: "安卓适配", desc: "修复了安卓设备字体自动放大导致的排版错乱问题。" },
-  { title: "布局修复", desc: "计时器数字现已自适应屏幕宽度，完美居中不溢出。" },
-  { title: "视觉升级", desc: "礼花特效全面增强，盛大绽放，庆祝你的每一次坚持。" },
-  { title: "细节优化", desc: "设置选项增加精致边框，首页文案显示更完整。" }
+  { title: "性能飞跃", desc: "重构礼花特效引擎，解决卡顿问题，体验丝般顺滑。" },
+  { title: "全机型适配", desc: "修复 iPhone 13 及部分机型无法打开的问题。" },
+  { title: "布局精修", desc: "优化正计时数字显示，确保在任何屏幕上都完美居中。" }
 ];
 
 // --- 励志文案库 ---
@@ -105,36 +104,53 @@ const getBeijingDate = () => {
   return new Date(utc + (3600000 * 8));
 };
 
-// --- 盛大版礼花特效 ---
-const Confetti = ({ active }) => {
+// --- 高性能礼花特效 (修复卡顿) ---
+const Confetti = React.memo(({ active }) => {
+  // 使用 useMemo 缓存粒子数据，避免每次渲染都重新计算随机位置，极大降低 CPU 占用
+  const particles = useMemo(() => {
+    if (!active) return [];
+    return [...Array(50)].map((_, i) => ({
+      id: i,
+      color: ['#FF2D55', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#FF3B30'][Math.floor(Math.random() * 8)],
+      width: Math.random() * 8 + 6 + 'px',
+      height: Math.random() * 8 + 6 + 'px',
+      borderRadius: Math.random() > 0.5 ? '50%' : '3px',
+      x: (Math.random() - 0.5) * 200 + 'vw', // 稍微收窄范围，防止粒子太分散
+      y: (Math.random() - 0.5) * 150 + 'vh',
+      r: Math.random() * 720 + 'deg',
+      delay: Math.random() * 0.2 + 's',
+      duration: Math.random() * 1.0 + 1.2 + 's',
+    }));
+  }, [active]);
+
   if (!active) return null;
+
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-      {[...Array(150)].map((_, i) => (
+      {particles.map(p => (
         <div
-          key={i}
+          key={p.id}
           className="absolute animate-confetti"
           style={{
             left: '50%',
             top: '50%',
-            // 高饱和度庆典色
-            backgroundColor: ['#FF2D55', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#FF3B30'][Math.floor(Math.random() * 8)],
-            width: Math.random() * 12 + 6 + 'px',
-            height: Math.random() * 12 + 6 + 'px',
-            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-            // 扩大喷发范围
-            '--x': (Math.random() - 0.5) * 250 + 'vw',
-            '--y': (Math.random() - 0.5) * 250 + 'vh',
-            '--r': Math.random() * 720 + 'deg',
-            animationDelay: Math.random() * 0.2 + 's',
-            animationDuration: Math.random() * 1.5 + 2 + 's',
+            backgroundColor: p.color,
+            width: p.width,
+            height: p.height,
+            borderRadius: p.borderRadius,
+            '--x': p.x,
+            '--y': p.y,
+            '--r': p.r,
+            animationDelay: p.delay,
+            animationDuration: p.duration,
+            willChange: 'transform, opacity', // 硬件加速关键
           }}
         />
       ))}
       <style>{`
         @keyframes confetti {
           0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-          10% { opacity: 1; }
+          15% { opacity: 1; }
           100% { transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(0.5); opacity: 0; }
         }
         .animate-confetti {
@@ -143,7 +159,7 @@ const Confetti = ({ active }) => {
       `}</style>
     </div>
   );
-};
+});
 
 // --- 安装教程弹窗 (海报式) ---
 const InstallHelpModal = ({ onClose }) => {
@@ -312,7 +328,9 @@ const SplashScreen = ({ onFinish }) => {
 
 // --- 徽章展示组件 (修复白屏的关键) ---
 const BadgeWall = ({ count, color }) => {
+  // 安全转换，防止 illegal length
   const safeCount = Math.max(0, parseInt(count) || 0);
+  
   if (safeCount === 0) return null;
   return (
     <div className="flex flex-wrap justify-center gap-3 mt-8 animate-fadeIn max-w-[90%] mx-auto">
@@ -328,7 +346,7 @@ const BadgeWall = ({ count, color }) => {
   );
 };
 
-// --- 计时器组件 (安卓溢出完美修复) ---
+// --- 计时器组件 ---
 const TimerView = ({ theme, examType, badges, onAddBadge }) => {
   const [mode, setMode] = useState('stopwatch'); 
   const [isActive, setIsActive] = useState(false);
@@ -931,7 +949,7 @@ export default function ExamPrepApp() {
            {currentView === 'settings' && (
              <div className="space-y-8 animate-fadeIn pb-24">
                 {/* 备考项目与自定义 */}
-                <section className="bg-white p-6 rounded-[2rem] shadow-sm">
+                <section className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-200">
                   <h3 className="font-bold mb-4 text-gray-900 text-lg">备考项目</h3>
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     {Object.entries(DEFAULT_CONFIGS).map(([key, config]) => (
@@ -970,7 +988,7 @@ export default function ExamPrepApp() {
                   )}
                 </section>
 
-                <section className="bg-white p-6 rounded-[2rem] shadow-sm">
+                <section className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-200">
                   <h3 className="font-bold mb-4 text-gray-900 text-lg">主题风格</h3>
                   <div className="grid grid-cols-5 gap-3">
                     {THEME_PRESETS.map((t, i) => (
@@ -1002,7 +1020,7 @@ export default function ExamPrepApp() {
                   </div>
                 </section>
 
-                <section className="bg-white p-6 rounded-[2rem] shadow-sm">
+                <section className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-200">
                   <h3 className="font-bold mb-4 text-gray-900 text-lg">目标设定</h3>
                   <div className="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
                     <span className="text-sm text-gray-500 font-medium ml-2">考试日期</span>
