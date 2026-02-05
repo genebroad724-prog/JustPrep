@@ -4,18 +4,18 @@ import {
   ChevronRight, Star, Flame, BarChart3, ChevronLeft, Award, 
   Dumbbell, Sun, Moon, Coffee, Brain, Zap, Timer, Play, Pause, RotateCcw,
   Bell, Smartphone, X, Landmark, GraduationCap, PenTool, Hash, Edit3, Save, Plus,
-  History, Palette, Sparkles, Layout, RefreshCw, Feather, Rocket, Check, Share, Menu, Download
+  History, Palette, Sparkles, Layout, RefreshCw, Feather, Rocket, Check, Share, Menu, Download, AlertTriangle, Compass, MoreVertical, PlusSquare
 } from 'lucide-react';
 
-// --- 版本号 ---
+// --- 版本号 (升级触发弹窗) ---
 const APP_VERSION = "v4.3"; 
 
 // --- 更新日志 ---
 const UPDATE_LOGS = [
-  { title: "稳定性修复", desc: "修复了专注计时器页面的白屏问题，提升运行稳定性。" },
-  { title: "全中文界面", desc: "设置页面颜色自定义选项已汉化，操作更直观。" },
-  { title: "视觉优化", desc: "正计时显示完美居中，礼花特效更加自然。" },
-  { title: "体验升级", desc: "安装指引更清晰，帮助您快速拥有原生 App 体验。" }
+  { title: "安装指引", desc: "新增可视化安装指南卡片，支持截图分享。" },
+  { title: "视觉微调", desc: "优化礼花喷放质感，色彩更加饱满喜悦。" },
+  { title: "兼容升级", desc: "全面适配各类机型，交互体验更加丝滑稳定。" },
+  { title: "自定义优化", desc: "备考项目自定义功能增强，打造你的专属计划。" }
 ];
 
 // --- 励志文案库 ---
@@ -143,86 +143,111 @@ const Confetti = ({ active }) => {
   );
 };
 
-// --- 安装教程弹窗 ---
+// --- 安装教程弹窗 (海报式重构) ---
 const InstallHelpModal = ({ onClose }) => {
   const [tab, setTab] = useState('ios'); 
 
+  // 动态样式配置
+  const isIOS = tab === 'ios';
+  const themeColor = isIOS ? '#007AFF' : '#10B981'; // 苹果蓝 vs 安卓绿
+  const themeBg = isIOS ? 'bg-blue-50' : 'bg-green-50';
+  const themeText = isIOS ? 'text-blue-600' : 'text-green-600';
+  const themeBorder = isIOS ? 'border-blue-100' : 'border-green-100';
+
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-6">
-      <div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-scaleIn flex flex-col max-h-[80vh]">
-        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-          <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-            <Smartphone className="w-5 h-5 text-blue-500" /> 安装到手机
-          </h3>
-          <button onClick={onClose} className="p-2 bg-white rounded-full text-gray-400 hover:text-gray-600 shadow-sm"><X className="w-5 h-5"/></button>
-        </div>
-        
-        <div className="flex p-2 bg-gray-50 gap-2">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fadeIn p-4">
+      <div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-scaleIn flex flex-col max-h-[85vh]">
+        {/* 顶部标签栏 */}
+        <div className="flex p-1.5 bg-gray-100 mx-4 mt-4 rounded-xl">
           <button 
             onClick={() => setTab('ios')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'ios' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${isIOS ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
           >
             苹果 iOS
           </button>
           <button 
             onClick={() => setTab('android')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'android' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${!isIOS ? 'bg-white text-green-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
           >
             安卓 Android
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto bg-white flex-1">
-          {tab === 'ios' ? (
-            <div className="space-y-6">
-              <div className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold shrink-0">1</div>
-                <div>
-                  <p className="text-sm font-bold text-gray-800">使用 Safari 打开</p>
-                  <p className="text-xs text-gray-500 mt-1">必须使用系统自带的 Safari 浏览器打开本链接。</p>
-                </div>
+        {/* 海报主体内容 */}
+        <div className="p-6 overflow-y-auto flex-1">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-extrabold text-gray-900 mb-1">
+              如何安装 App?
+            </h3>
+            <p className="text-xs text-gray-400 uppercase tracking-widest">Add to Home Screen</p>
+          </div>
+
+          <div className="space-y-4">
+            {/* 步骤 1 */}
+            <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative group`}>
+              <div className={`absolute -left-2 -top-2 w-6 h-6 rounded-full ${isIOS ? 'bg-blue-600' : 'bg-green-600'} text-white flex items-center justify-center text-xs font-bold shadow-sm`}>1</div>
+              <div className={`p-2 bg-white rounded-xl shadow-sm ${themeText}`}>
+                {isIOS ? <Compass className="w-6 h-6" /> : <img src="/vite.svg" className="w-6 h-6 grayscale opacity-50" alt="browser" /> /* 模拟Chrome图标 */}
+                {!isIOS && <div className="absolute inset-0 flex items-center justify-center"><div className="w-4 h-4 rounded-full border-2 border-current"></div></div>}
               </div>
-              <div className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold shrink-0">2</div>
-                <div>
-                  <p className="text-sm font-bold text-gray-800">点击“分享”按钮</p>
-                  <p className="text-xs text-gray-500 mt-1">点击浏览器底部中间的分享图标 <Share className="w-3 h-3 inline align-middle"/>。</p>
-                </div>
-              </div>
-              <div className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold shrink-0">3</div>
-                <div>
-                  <p className="text-sm font-bold text-gray-800">添加到主屏幕</p>
-                  <p className="text-xs text-gray-500 mt-1">向上滑动菜单，找到并点击“添加到主屏幕”。</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold shrink-0">1</div>
-                <div>
-                  <p className="text-sm font-bold text-gray-800">使用 Chrome 打开</p>
-                  <p className="text-xs text-gray-500 mt-1">推荐使用 Chrome 浏览器体验最佳。</p>
-                </div>
-              </div>
-              <div className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold shrink-0">2</div>
-                <div>
-                  <p className="text-sm font-bold text-gray-800">点击菜单</p>
-                  <p className="text-xs text-gray-500 mt-1">点击右上角的三个点图标 <Menu className="w-3 h-3 inline align-middle"/>。</p>
-                </div>
-              </div>
-              <div className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold shrink-0">3</div>
-                <div>
-                  <p className="text-sm font-bold text-gray-800">安装应用</p>
-                  <p className="text-xs text-gray-500 mt-1">点击“安装应用”或“添加到主屏幕”。</p>
-                </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-gray-800 text-sm mb-1">
+                  {isIOS ? '用 Safari 打开' : '用 Chrome 打开'}
+                </h4>
+                <p className="text-xs text-gray-500 leading-snug">
+                  {isIOS ? '必须使用系统自带的 Safari 浏览器访问本页面。' : '推荐使用 Chrome 浏览器体验最佳兼容性。'}
+                </p>
               </div>
             </div>
-          )}
+
+            {/* 步骤 2 */}
+            <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative`}>
+              <div className={`absolute -left-2 -top-2 w-6 h-6 rounded-full ${isIOS ? 'bg-blue-600' : 'bg-green-600'} text-white flex items-center justify-center text-xs font-bold shadow-sm`}>2</div>
+              <div className={`p-2 bg-white rounded-xl shadow-sm ${themeText}`}>
+                {isIOS ? <Share className="w-6 h-6" /> : <MoreVertical className="w-6 h-6" />}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-gray-800 text-sm mb-1">
+                  {isIOS ? '点击底部“分享”' : '点击右上角菜单'}
+                </h4>
+                <p className="text-xs text-gray-500 leading-snug">
+                  {isIOS ? '找到浏览器底部中间的分享图标。' : '点击浏览器右上角的三个点图标。'}
+                </p>
+              </div>
+            </div>
+
+            {/* 步骤 3 */}
+            <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative`}>
+              <div className={`absolute -left-2 -top-2 w-6 h-6 rounded-full ${isIOS ? 'bg-blue-600' : 'bg-green-600'} text-white flex items-center justify-center text-xs font-bold shadow-sm`}>3</div>
+              <div className={`p-2 bg-white rounded-xl shadow-sm ${themeText}`}>
+                {isIOS ? <PlusSquare className="w-6 h-6" /> : <Download className="w-6 h-6" />}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-gray-800 text-sm mb-1">
+                  {isIOS ? '添加到主屏幕' : '安装应用'}
+                </h4>
+                <p className="text-xs text-gray-500 leading-snug">
+                  {isIOS ? '向上滑动菜单，找到“添加到主屏幕”。' : '点击“安装应用”或“添加到主屏幕”。'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 底部注意事项 */}
+          <div className="mt-6 bg-yellow-50 border border-yellow-100 p-4 rounded-2xl flex gap-3 items-start">
+            <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+            <div>
+              <h5 className="font-bold text-yellow-700 text-xs mb-1">注意事项</h5>
+              <p className="text-[10px] text-yellow-600 leading-relaxed">
+                {isIOS ? '请勿使用微信、QQ等内置浏览器打开，否则无法安装。' : '如果桌面未出现图标，请检查手机设置中浏览器的“创建桌面快捷方式”权限是否开启。'}
+              </p>
+            </div>
+          </div>
         </div>
+
+        <button onClick={onClose} className="bg-gray-900 text-white py-4 font-bold text-sm hover:bg-gray-800 transition-colors">
+          我知道了
+        </button>
       </div>
     </div>
   );
@@ -423,7 +448,7 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
           </button>
         </div>
 
-        {/* 完美居中容器 - flex-col + items-center + text-center */}
+        {/* 完美居中容器 */}
         <div className="flex flex-col items-center justify-center w-full text-center">
           <div className="font-mono text-[4.5rem] leading-none font-bold tracking-tight mb-4 tabular-nums drop-shadow-sm transition-colors w-full text-center" style={{ color: theme.text }}>
             {formatTime(displaySeconds)}
