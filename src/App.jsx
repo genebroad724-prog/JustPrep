@@ -4,8 +4,11 @@ import {
   ChevronRight, Star, Flame, BarChart3, ChevronLeft, Award, 
   Dumbbell, Sun, Moon, Coffee, Brain, Zap, Timer, Play, Pause, RotateCcw,
   Bell, Smartphone, X, Landmark, GraduationCap, PenTool, Hash, Edit3, Save, Plus,
-  History, Palette, Sparkles, Layout
+  History, Palette, Sparkles, Layout, RefreshCw
 } from 'lucide-react';
+
+// --- 版本号 (每次您修改代码发布时，手动改一下这个数字，用户就知道更新了) ---
+const APP_VERSION = "v3.1"; 
 
 // --- 励志文案库 (系统自动分配) ---
 const MOTIVATIONAL_QUOTES = [
@@ -589,6 +592,12 @@ export default function ExamPrepApp() {
     }
   };
 
+  const handleRefresh = () => {
+    if(window.confirm('确定要检查更新吗？这会刷新页面。')) {
+      window.location.reload(true);
+    }
+  };
+
   if (loading) return <SplashScreen onFinish={() => setLoading(false)} />;
 
   return (
@@ -792,8 +801,14 @@ export default function ExamPrepApp() {
                   </div>
                 </section>
                 
-                <div className="text-center pt-8">
-                  <p className="text-[10px] text-gray-400 font-mono">JustPrep v3.0 · Stay Focused</p>
+                <div className="text-center pt-8 border-t border-gray-100">
+                  <p className="text-[10px] text-gray-400 font-mono mb-2">JustPrep {APP_VERSION} · Stay Focused</p>
+                  <button 
+                    onClick={handleRefresh}
+                    className="text-xs flex items-center justify-center gap-1 mx-auto text-blue-500 font-bold bg-blue-50 px-3 py-1.5 rounded-full"
+                  >
+                    <RefreshCw className="w-3 h-3" /> 检查更新
+                  </button>
                 </div>
              </div>
            )}
