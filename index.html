@@ -3,15 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     
-    <!-- 这里指定了我们的新图标 -->
+    <!-- 网站标题栏图标 (电脑浏览器用，保持 SVG 即可) -->
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
+    
+    <!-- 核心修复：iOS 主屏幕图标 -->
+    <!-- 苹果必须使用 PNG 格式，不能用 SVG！请确保 public 文件夹里有了 icon.png -->
+    <link rel="apple-touch-icon" href="/icon.png" />
+    
+    <!-- iOS 专属 PWA 增强配置 (让它全屏运行，去掉浏览器顶栏底栏) -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="就这样备考" />
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
-    <!-- 引入 Manifest -->
+    <!-- 引入 Manifest (给安卓用) -->
     <link rel="manifest" href="/manifest.json">
-    <!-- 这里的颜色 #111827 对应我们新图标的深色背景，保证状态栏沉浸 -->
+    <!-- 沉浸式状态栏颜色 -->
     <meta name="theme-color" content="#111827" />
     
     <title>就这样备考</title>
