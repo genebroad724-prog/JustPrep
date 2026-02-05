@@ -7,15 +7,15 @@ import {
   History, Palette, Sparkles, Layout, RefreshCw, Feather, Rocket, Check, Share, Menu, Download
 } from 'lucide-react';
 
-// --- 版本号 (升级触发弹窗) ---
-const APP_VERSION = "v4.2"; 
+// --- 版本号 ---
+const APP_VERSION = "v4.3"; 
 
 // --- 更新日志 ---
 const UPDATE_LOGS = [
-  { title: "安装指引", desc: "新增 iOS 与 Android 安装教程，手把手教你将 App 放入桌面。" },
-  { title: "视觉微调", desc: "优化礼花喷放质感，色彩更加饱满喜悦。" },
-  { title: "兼容升级", desc: "全面适配各类机型，交互体验更加丝滑稳定。" },
-  { title: "自定义优化", desc: "备考项目自定义功能增强，打造你的专属计划。" }
+  { title: "稳定性修复", desc: "修复了专注计时器页面的白屏问题，提升运行稳定性。" },
+  { title: "全中文界面", desc: "设置页面颜色自定义选项已汉化，操作更直观。" },
+  { title: "视觉优化", desc: "正计时显示完美居中，礼花特效更加自然。" },
+  { title: "体验升级", desc: "安装指引更清晰，帮助您快速拥有原生 App 体验。" }
 ];
 
 // --- 励志文案库 ---
@@ -90,11 +90,11 @@ const DEFAULT_CONFIGS = {
 
 // --- 高级主题预设 ---
 const THEME_PRESETS = [
-  { name: '极简白 (Minimalist)', primary: '#FFFFFF', accent: '#007AFF', badge: '#FF9500', text: '#1D1D1F', bg: '#F2F2F7', cardBg: '#FFFFFF' },
-  { name: '暗夜黑 (Midnight)', primary: '#1C1C1E', accent: '#0A84FF', badge: '#FFD60A', text: '#F5F5F7', bg: '#000000', cardBg: '#1C1C1E' },
-  { name: '抹茶绿 (Matcha)', primary: '#F2FCE2', accent: '#3F6212', badge: '#EAB308', text: '#1A2F0A', bg: '#ECFCCB', cardBg: '#FFFFFF' },
-  { name: '迷雾灰 (Fog)', primary: '#E5E7EB', accent: '#374151', badge: '#F59E0B', text: '#111827', bg: '#F9FAFB', cardBg: '#FFFFFF' },
-  { name: '落日橘 (Sunset)', primary: '#FFF7ED', accent: '#EA580C', badge: '#FBBF24', text: '#431407', bg: '#FFEDD5', cardBg: '#FFFFFF' },
+  { name: '极简白', primary: '#FFFFFF', accent: '#007AFF', badge: '#FF9500', text: '#1D1D1F', bg: '#F2F2F7', cardBg: '#FFFFFF' },
+  { name: '暗夜黑', primary: '#1C1C1E', accent: '#0A84FF', badge: '#FFD60A', text: '#F5F5F7', bg: '#000000', cardBg: '#1C1C1E' },
+  { name: '抹茶绿', primary: '#F2FCE2', accent: '#3F6212', badge: '#EAB308', text: '#1A2F0A', bg: '#ECFCCB', cardBg: '#FFFFFF' },
+  { name: '迷雾灰', primary: '#E5E7EB', accent: '#374151', badge: '#F59E0B', text: '#111827', bg: '#F9FAFB', cardBg: '#FFFFFF' },
+  { name: '落日橘', primary: '#FFF7ED', accent: '#EA580C', badge: '#FBBF24', text: '#431407', bg: '#FFEDD5', cardBg: '#FFFFFF' },
 ];
 
 const ALARM_SOUND = "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
@@ -105,7 +105,7 @@ const getBeijingDate = () => {
   return new Date(utc + (3600000 * 8));
 };
 
-// --- 增强版礼花特效 (高饱和度庆典色) ---
+// --- 增强版礼花特效 ---
 const Confetti = ({ active }) => {
   if (!active) return null;
   return (
@@ -117,9 +117,8 @@ const Confetti = ({ active }) => {
           style={{
             left: '50%',
             top: '50%',
-            // 调整为更加鲜艳、喜悦的配色
             backgroundColor: ['#FF2D55', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#FF3B30'][Math.floor(Math.random() * 8)],
-            width: Math.random() * 10 + 5 + 'px', // 稍微变大
+            width: Math.random() * 10 + 5 + 'px',
             height: Math.random() * 10 + 5 + 'px',
             borderRadius: Math.random() > 0.5 ? '50%' : '2px',
             '--x': (Math.random() - 0.5) * 180 + 'vw',
@@ -146,7 +145,7 @@ const Confetti = ({ active }) => {
 
 // --- 安装教程弹窗 ---
 const InstallHelpModal = ({ onClose }) => {
-  const [tab, setTab] = useState('ios'); // 'ios' or 'android'
+  const [tab, setTab] = useState('ios'); 
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-6">
@@ -266,7 +265,6 @@ const SplashScreen = ({ onFinish }) => {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    // 0: start, 1: line1 show, 2: line2 show, 3: fade out
     setTimeout(() => setStep(1), 600);
     setTimeout(() => setStep(2), 1800);
     setTimeout(() => setStep(3), 3200);
@@ -288,6 +286,26 @@ const SplashScreen = ({ onFinish }) => {
       
       <div className={`mt-6 transition-all duration-1000 delay-300 transform ${step >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
         <p className="text-sm font-medium text-gray-400 tracking-[0.2em] uppercase">你的专属定制化 App</p>
+      </div>
+    </div>
+  );
+};
+
+// --- 徽章展示组件 (修复白屏的关键) ---
+const BadgeWall = ({ count, color }) => {
+  // 安全转换，防止 illegal length
+  const safeCount = Math.max(0, parseInt(count) || 0);
+  
+  if (safeCount === 0) return null;
+  return (
+    <div className="flex flex-wrap justify-center gap-3 mt-8 animate-fadeIn max-w-[90%] mx-auto">
+      {[...Array(safeCount)].map((_, i) => (
+        <div key={i} className="relative group animate-popIn" style={{ animationDelay: `${i * 0.05}s` }}>
+          <Award className="w-6 h-6 drop-shadow-sm" style={{ color: color }} fill="currentColor" />
+        </div>
+      ))}
+      <div className="w-full text-center text-[10px] mt-3 opacity-50 font-medium tracking-wider">
+        已获得 {safeCount} 枚专注徽章
       </div>
     </div>
   );
@@ -374,9 +392,10 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
   };
 
   const formatTime = (totalSeconds) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const secs = totalSeconds % 60;
+    const safeSeconds = Math.max(0, parseInt(totalSeconds) || 0); // Safety check
+    const hours = Math.floor(safeSeconds / 3600);
+    const minutes = Math.floor((safeSeconds % 3600) / 60);
+    const secs = safeSeconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -404,7 +423,7 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
           </button>
         </div>
 
-        {/* 完美居中容器 */}
+        {/* 完美居中容器 - flex-col + items-center + text-center */}
         <div className="flex flex-col items-center justify-center w-full text-center">
           <div className="font-mono text-[4.5rem] leading-none font-bold tracking-tight mb-4 tabular-nums drop-shadow-sm transition-colors w-full text-center" style={{ color: theme.text }}>
             {formatTime(displaySeconds)}
@@ -548,8 +567,8 @@ const SmartPlanEditor = ({ schedule, setSchedule, theme, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 bg-gray-50 flex flex-col animate-slideUp">
       <div className="p-4 border-b flex justify-between items-center shadow-sm z-10" style={{ backgroundColor: theme.primary }}>
-        <h2 className="font-bold text-lg flex items-center gap-2" style={{ color: theme.name === '暗夜黑 (Midnight)' ? 'white' : theme.text }}><Edit3 className="w-5 h-5"/> 编辑计划</h2>
-        <button onClick={onClose} className="p-2 bg-black/10 rounded-full active:scale-90 transition-transform"><X className="w-5 h-5" style={{ color: theme.name === '暗夜黑 (Midnight)' ? 'white' : theme.text }}/></button>
+        <h2 className="font-bold text-lg flex items-center gap-2" style={{ color: theme.name === '暗夜黑' ? 'white' : theme.text }}><Edit3 className="w-5 h-5"/> 编辑计划</h2>
+        <button onClick={onClose} className="p-2 bg-black/10 rounded-full active:scale-90 transition-transform"><X className="w-5 h-5" style={{ color: theme.name === '暗夜黑' ? 'white' : theme.text }}/></button>
       </div>
 
       <div className="flex bg-white shadow-sm mb-2">
@@ -754,6 +773,13 @@ export default function ExamPrepApp() {
 
   const currentExamName = examType === 'custom' ? customExamName : DEFAULT_CONFIGS[examType]?.name;
 
+  // 汉化颜色标签的映射表
+  const colorLabels = {
+    primary: "主色调",
+    accent: "强调色",
+    badge: "徽章色"
+  };
+
   return (
     <div className="min-h-screen font-sans max-w-md mx-auto relative shadow-2xl overflow-hidden" style={{ backgroundColor: theme.bg, color: theme.text }}>
       {showUpdateModal && <UpdateModal onClose={() => setShowUpdateModal(false)} />}
@@ -943,14 +969,15 @@ export default function ExamPrepApp() {
                   </div>
                   
                   <div className="mt-6">
-                    <p className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Fine Tune (微调)</p>
+                    <p className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">配色微调</p>
                     <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
                       {['primary', 'accent', 'badge'].map(key => (
                         <div key={key} className="flex-shrink-0 flex flex-col items-center gap-2">
                           <div className="relative w-10 h-10 rounded-full overflow-hidden shadow-sm border border-gray-100">
                             <input type="color" value={theme[key]} onChange={e => setTheme({...theme, [key]: e.target.value})} className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer"/>
                           </div>
-                          <span className="text-[10px] text-gray-400 capitalize">{key}</span>
+                          {/* 汉化标签 */}
+                          <span className="text-[10px] text-gray-400 capitalize">{colorLabels[key]}</span>
                         </div>
                       ))}
                     </div>
