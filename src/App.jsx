@@ -4,20 +4,42 @@ import {
   ChevronRight, Star, Flame, BarChart3, ChevronLeft, Award, 
   Dumbbell, Sun, Moon, Coffee, Brain, Zap, Timer, Play, Pause, RotateCcw,
   Bell, Smartphone, X, Landmark, GraduationCap, PenTool, Hash, Edit3, Save, Plus,
-  History, Palette, Sparkles, Layout, RefreshCw, Feather, Rocket, Check, Share, Menu, Download, AlertTriangle, Compass, MoreVertical, PlusSquare
+  History, Palette, Sparkles, Layout, RefreshCw, Feather, Rocket, Check, Share, Menu, Download, AlertTriangle, Compass, MoreVertical, PlusSquare,
+  Lock, Crown
 } from 'lucide-react';
 
-// --- 版本号 (升级触发弹窗) ---
-const APP_VERSION = "v4.5"; 
+// --- 版本号 ---
+const APP_VERSION = "v4.7"; 
 
 // --- 更新日志 ---
 const UPDATE_LOGS = [
-  { title: "性能飞跃", desc: "重构礼花特效引擎，解决卡顿问题，体验丝般顺滑。" },
-  { title: "全机型适配", desc: "修复 iPhone 13 及部分机型无法打开的问题。" },
-  { title: "布局精修", desc: "优化正计时数字显示，确保在任何屏幕上都完美居中。" }
+  { title: "激励机制调整", desc: "XP 里程碑调整为每 500 分触发，庆祝更隆重，奖励更珍贵。" },
+  { title: "界面修复", desc: "修复了专注计时器字体过大的问题，适配更多机型。" },
+  { title: "功能优化", desc: "新增显眼的徽章图鉴入口，让你的成就一目了然。" },
+  { title: "视觉升级", desc: "里程碑弹窗全新设计，红金配色，热烈庆祝你的每一次突破。" }
 ];
 
-// --- 励志文案库 ---
+// --- 专注徽章图鉴定义 ---
+const BADGE_LIBRARY = [
+  { id: 1, count: 1, name: "初次专注", desc: "累计专注 1 小时", icon: Star, color: "#FBBF24" },
+  { id: 2, count: 3, name: "渐入佳境", desc: "累计专注 3 小时", icon: Zap, color: "#3B82F6" },
+  { id: 3, count: 10, name: "深度沉浸", desc: "累计专注 10 小时", icon: Flame, color: "#EF4444" },
+  { id: 4, count: 30, name: "心流大师", desc: "累计专注 30 小时", icon: Award, color: "#8B5CF6" },
+  { id: 5, count: 60, name: "自律王者", desc: "累计专注 60 小时", icon: Trophy, color: "#F59E0B" },
+  { id: 6, count: 100, name: "上岸传说", desc: "累计专注 100 小时", icon: Crown, color: "#10B981" },
+];
+
+// --- 里程碑祝福语 ---
+const MILESTONE_WISHES = [
+  "星光不负赶路人，你的每一分努力都在发光！",
+  "太棒了！你距离上岸又近了一大步！",
+  "保持这个节奏，全世界都会为你让路！",
+  "乾坤未定，你我皆是黑马，继续冲！",
+  "坚持很难，但坚持下来的你真的很酷！",
+  "这种执行力，活该你考上！",
+  "今天的汗水，就是明天的录取通知书！"
+];
+
 const MOTIVATIONAL_QUOTES = [
   "现在的关键不在于计划的完美，而在于执行的坚决。",
   "你背不下来的书，总有人能背下来；你做不出来的题，总有人能做出来。",
@@ -31,7 +53,6 @@ const MOTIVATIONAL_QUOTES = [
   "种一棵树最好的时间是十年前，其次是现在。"
 ];
 
-// --- 默认配置模板 ---
 const DEFAULT_CONFIGS = {
   kaogong: {
     id: 'kaogong',
@@ -87,7 +108,6 @@ const DEFAULT_CONFIGS = {
   }
 };
 
-// --- 高级主题预设 ---
 const THEME_PRESETS = [
   { name: '极简白', primary: '#FFFFFF', accent: '#007AFF', badge: '#FF9500', text: '#1D1D1F', bg: '#F2F2F7', cardBg: '#FFFFFF' },
   { name: '暗夜黑', primary: '#1C1C1E', accent: '#0A84FF', badge: '#FFD60A', text: '#F5F5F7', bg: '#000000', cardBg: '#1C1C1E' },
@@ -104,29 +124,28 @@ const getBeijingDate = () => {
   return new Date(utc + (3600000 * 8));
 };
 
-// --- 高性能礼花特效 (修复卡顿) ---
-const Confetti = React.memo(({ active }) => {
-  // 使用 useMemo 缓存粒子数据，避免每次渲染都重新计算随机位置，极大降低 CPU 占用
+// --- 高性能礼花特效 ---
+const Confetti = React.memo(({ triggerKey }) => {
   const particles = useMemo(() => {
-    if (!active) return [];
-    return [...Array(50)].map((_, i) => ({
+    if (!triggerKey) return []; 
+    return [...Array(80)].map((_, i) => ({
       id: i,
       color: ['#FF2D55', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#FF3B30'][Math.floor(Math.random() * 8)],
-      width: Math.random() * 8 + 6 + 'px',
-      height: Math.random() * 8 + 6 + 'px',
-      borderRadius: Math.random() > 0.5 ? '50%' : '3px',
-      x: (Math.random() - 0.5) * 200 + 'vw', // 稍微收窄范围，防止粒子太分散
+      width: Math.random() * 10 + 5 + 'px', 
+      height: Math.random() * 10 + 5 + 'px',
+      borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+      x: (Math.random() - 0.5) * 200 + 'vw', 
       y: (Math.random() - 0.5) * 150 + 'vh',
       r: Math.random() * 720 + 'deg',
       delay: Math.random() * 0.2 + 's',
       duration: Math.random() * 1.0 + 1.2 + 's',
     }));
-  }, [active]);
+  }, [triggerKey]);
 
-  if (!active) return null;
+  if (!triggerKey) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+    <div key={triggerKey} className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
       {particles.map(p => (
         <div
           key={p.id}
@@ -143,7 +162,7 @@ const Confetti = React.memo(({ active }) => {
             '--r': p.r,
             animationDelay: p.delay,
             animationDuration: p.duration,
-            willChange: 'transform, opacity', // 硬件加速关键
+            willChange: 'transform, opacity',
           }}
         />
       ))}
@@ -161,109 +180,169 @@ const Confetti = React.memo(({ active }) => {
   );
 });
 
-// --- 安装教程弹窗 (海报式) ---
+// --- 热烈版里程碑弹窗 ---
+const MilestoneModal = ({ xp, onClose }) => {
+  const wish = useMemo(() => MILESTONE_WISHES[Math.floor(Math.random() * MILESTONE_WISHES.length)], []);
+  
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-lg animate-fadeIn p-6" onClick={onClose}>
+      <div 
+        className="relative w-full max-w-sm overflow-hidden text-center animate-scaleIn p-8 rounded-[2rem]"
+        style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)', boxShadow: '0 20px 50px rgba(255, 59, 48, 0.5)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* 放射光芒背景 */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] bg-[conic-gradient(from_0deg,transparent_0deg,white_10deg,transparent_20deg,white_30deg,transparent_40deg,white_50deg,transparent_60deg,white_70deg,transparent_80deg,white_90deg,transparent_100deg,white_110deg,transparent_120deg,white_130deg,transparent_140deg,white_150deg,transparent_160deg,white_170deg,transparent_180deg,white_190deg,transparent_200deg,white_210deg,transparent_220deg,white_230deg,transparent_240deg,white_250deg,transparent_260deg,white_270deg,transparent_280deg,white_290deg,transparent_300deg,white_310deg,transparent_320deg,white_330deg,transparent_340deg,white_350deg,transparent_360deg)] animate-spin-slow"></div>
+        </div>
+
+        <div className="relative z-10">
+          <div className="mb-4 inline-block p-4 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/40 shadow-xl">
+             <Trophy className="w-20 h-20 text-yellow-300 drop-shadow-md animate-bounce" fill="currentColor" />
+          </div>
+          
+          <h2 className="text-5xl font-black text-white mb-1 drop-shadow-md tracking-tight">{xp}</h2>
+          <p className="text-sm font-bold text-white/90 mb-8 uppercase tracking-[0.3em]">里程碑达成</p>
+          
+          <div className="bg-white/95 p-5 rounded-2xl shadow-lg mb-6 transform rotate-1">
+            <p className="text-base text-gray-800 font-bold leading-relaxed">"{wish}"</p>
+          </div>
+
+          <button 
+            onClick={onClose}
+            className="w-full py-4 rounded-xl font-bold text-red-600 shadow-xl active:scale-95 transition-transform bg-white hover:bg-gray-50 border-b-4 border-red-200"
+          >
+            收下祝福，继续冲！
+          </button>
+        </div>
+      </div>
+      <style>{`
+        @keyframes spin-slow { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+      `}</style>
+    </div>
+  );
+};
+
+// --- 徽章图鉴弹窗 ---
+const BadgeLibraryModal = ({ currentBadges, onClose }) => {
+  return (
+    <div className="fixed inset-0 z-[250] bg-gray-50 flex flex-col animate-slideUp">
+      <div className="p-5 border-b bg-white shadow-sm flex justify-between items-center z-10 sticky top-0">
+        <h2 className="font-bold text-xl text-gray-900 flex items-center gap-2">
+          <Award className="w-6 h-6 text-yellow-500" /> 专注徽章图鉴
+        </h2>
+        <button onClick={onClose} className="p-2 bg-gray-100 rounded-full active:scale-90 transition-transform">
+          <X className="w-5 h-5 text-gray-600"/>
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-2xl mb-8 text-white shadow-lg flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold text-blue-100 uppercase tracking-wider mb-1">当前拥有</p>
+            <p className="text-3xl font-black">{currentBadges} <span className="text-sm font-medium opacity-80">枚</span></p>
+          </div>
+          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+             <Award className="w-6 h-6 text-white" />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="font-bold text-gray-500 text-xs uppercase tracking-wider ml-1">成就列表</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {BADGE_LIBRARY.map((badge) => {
+              const isUnlocked = currentBadges >= badge.count;
+              return (
+                <div 
+                  key={badge.id} 
+                  className={`p-4 rounded-2xl border-2 flex items-center gap-4 transition-all ${isUnlocked ? 'bg-white border-blue-100 shadow-sm' : 'bg-gray-100 border-transparent'}`}
+                >
+                  <div 
+                    className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 transition-transform ${isUnlocked ? 'shadow-md scale-110' : 'bg-gray-200 grayscale'}`}
+                    style={{ backgroundColor: isUnlocked ? badge.color : undefined }}
+                  >
+                    {isUnlocked ? <badge.icon className="w-7 h-7 text-white" /> : <Lock className="w-6 h-6 text-gray-400" />}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className={`font-bold ${isUnlocked ? 'text-gray-900' : 'text-gray-400'}`}>{badge.name}</h3>
+                      {isUnlocked && <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><Check className="w-3 h-3"/> 已点亮</span>}
+                    </div>
+                    <p className="text-xs text-gray-500">{badge.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        
+        <p className="text-center text-xs text-gray-400 mt-8 mb-4">每专注满 1 小时，即可获得 1 枚徽章</p>
+      </div>
+    </div>
+  );
+};
+
+// --- 安装教程弹窗 ---
 const InstallHelpModal = ({ onClose }) => {
   const [tab, setTab] = useState('ios'); 
   const isIOS = tab === 'ios';
-  const themeColor = isIOS ? '#007AFF' : '#10B981'; 
-  const themeBg = isIOS ? 'bg-blue-50' : 'bg-green-50';
   const themeText = isIOS ? 'text-blue-600' : 'text-green-600';
   const themeBorder = isIOS ? 'border-blue-100' : 'border-green-100';
+  const themeBg = isIOS ? 'bg-blue-50' : 'bg-green-50';
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fadeIn p-4">
       <div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-scaleIn flex flex-col max-h-[85vh]">
         <div className="flex p-1.5 bg-gray-100 mx-4 mt-4 rounded-xl">
-          <button 
-            onClick={() => setTab('ios')}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${isIOS ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-          >
-            苹果 iOS
-          </button>
-          <button 
-            onClick={() => setTab('android')}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${!isIOS ? 'bg-white text-green-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-          >
-            安卓 Android
-          </button>
+          <button onClick={() => setTab('ios')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${isIOS ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>苹果 iOS</button>
+          <button onClick={() => setTab('android')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${!isIOS ? 'bg-white text-green-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>安卓 Android</button>
         </div>
-
         <div className="p-6 overflow-y-auto flex-1">
           <div className="text-center mb-6">
-            <h3 className="text-xl font-extrabold text-gray-900 mb-1">
-              如何安装 App?
-            </h3>
+            <h3 className="text-xl font-extrabold text-gray-900 mb-1">如何安装 App?</h3>
             <p className="text-xs text-gray-400 uppercase tracking-widest">Add to Home Screen</p>
           </div>
-
           <div className="space-y-4">
-            <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative group`}>
+            <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative`}>
               <div className={`absolute -left-2 -top-2 w-6 h-6 rounded-full ${isIOS ? 'bg-blue-600' : 'bg-green-600'} text-white flex items-center justify-center text-xs font-bold shadow-sm`}>1</div>
               <div className={`p-2 bg-white rounded-xl shadow-sm ${themeText}`}>
-                {isIOS ? <Compass className="w-6 h-6" /> : <img src="/vite.svg" className="w-6 h-6 grayscale opacity-50" alt="browser" />}
-                {!isIOS && <div className="absolute inset-0 flex items-center justify-center"><div className="w-4 h-4 rounded-full border-2 border-current"></div></div>}
+                {isIOS ? <Compass className="w-6 h-6" /> : <img src="/vite.svg" className="w-6 h-6 grayscale opacity-50" alt="chrome"/>}
               </div>
               <div className="flex-1">
-                <h4 className="font-bold text-gray-800 text-sm mb-1">
-                  {isIOS ? '用 Safari 打开' : '用 Chrome 打开'}
-                </h4>
-                <p className="text-xs text-gray-500 leading-snug">
-                  {isIOS ? '必须使用系统自带的 Safari 浏览器访问本页面。' : '推荐使用 Chrome 浏览器体验最佳兼容性。'}
-                </p>
+                <h4 className="font-bold text-gray-800 text-sm mb-1">{isIOS ? '用 Safari 打开' : '用 Chrome 打开'}</h4>
+                <p className="text-xs text-gray-500 leading-snug">{isIOS ? '必须使用系统自带 Safari。' : '推荐使用 Chrome 浏览器。'}</p>
               </div>
             </div>
-
             <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative`}>
               <div className={`absolute -left-2 -top-2 w-6 h-6 rounded-full ${isIOS ? 'bg-blue-600' : 'bg-green-600'} text-white flex items-center justify-center text-xs font-bold shadow-sm`}>2</div>
               <div className={`p-2 bg-white rounded-xl shadow-sm ${themeText}`}>
                 {isIOS ? <Share className="w-6 h-6" /> : <MoreVertical className="w-6 h-6" />}
               </div>
               <div className="flex-1">
-                <h4 className="font-bold text-gray-800 text-sm mb-1">
-                  {isIOS ? '点击底部“分享”' : '点击右上角菜单'}
-                </h4>
-                <p className="text-xs text-gray-500 leading-snug">
-                  {isIOS ? '找到浏览器底部中间的分享图标。' : '点击浏览器右上角的三个点图标。'}
-                </p>
+                <h4 className="font-bold text-gray-800 text-sm mb-1">{isIOS ? '点击底部“分享”' : '点击右上角菜单'}</h4>
+                <p className="text-xs text-gray-500 leading-snug">{isIOS ? '找到底部的分享图标。' : '点击右上角的三个点。'}</p>
               </div>
             </div>
-
             <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative`}>
               <div className={`absolute -left-2 -top-2 w-6 h-6 rounded-full ${isIOS ? 'bg-blue-600' : 'bg-green-600'} text-white flex items-center justify-center text-xs font-bold shadow-sm`}>3</div>
               <div className={`p-2 bg-white rounded-xl shadow-sm ${themeText}`}>
                 {isIOS ? <PlusSquare className="w-6 h-6" /> : <Download className="w-6 h-6" />}
               </div>
               <div className="flex-1">
-                <h4 className="font-bold text-gray-800 text-sm mb-1">
-                  {isIOS ? '添加到主屏幕' : '安装应用'}
-                </h4>
-                <p className="text-xs text-gray-500 leading-snug">
-                  {isIOS ? '向上滑动菜单，找到“添加到主屏幕”。' : '点击“安装应用”或“添加到主屏幕”。'}
-                </p>
+                <h4 className="font-bold text-gray-800 text-sm mb-1">{isIOS ? '添加到主屏幕' : '安装应用'}</h4>
+                <p className="text-xs text-gray-500 leading-snug">找到并点击该选项即可。</p>
               </div>
             </div>
           </div>
-
-          <div className="mt-6 bg-yellow-50 border border-yellow-100 p-4 rounded-2xl flex gap-3 items-start">
-            <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
-            <div>
-              <h5 className="font-bold text-yellow-700 text-xs mb-1">注意事项</h5>
-              <p className="text-[10px] text-yellow-600 leading-relaxed">
-                {isIOS ? '请勿使用微信、QQ等内置浏览器打开，否则无法安装。' : '如果桌面未出现图标，请检查手机设置中浏览器的“创建桌面快捷方式”权限是否开启。'}
-              </p>
-            </div>
-          </div>
         </div>
-
-        <button onClick={onClose} className="bg-gray-900 text-white py-4 font-bold text-sm hover:bg-gray-800 transition-colors">
-          我知道了
-        </button>
+        <button onClick={onClose} className="bg-gray-900 text-white py-4 font-bold text-sm hover:bg-gray-800 transition-colors">我知道了</button>
       </div>
     </div>
   );
 };
 
-// --- 更新弹窗 ---
+// --- 更新日志弹窗 ---
 const UpdateModal = ({ onClose }) => (
   <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn p-6">
     <div className="bg-white rounded-[2rem] w-full max-w-xs overflow-hidden shadow-2xl animate-scaleIn">
@@ -284,12 +363,7 @@ const UpdateModal = ({ onClose }) => (
         ))}
       </div>
       <div className="p-6 pt-2">
-        <button 
-          onClick={onClose}
-          className="w-full py-3.5 rounded-xl font-bold text-white shadow-lg active:scale-95 transition-transform bg-gray-900"
-        >
-          开启新体验
-        </button>
+        <button onClick={onClose} className="w-full py-3.5 rounded-xl font-bold text-white shadow-lg active:scale-95 transition-transform bg-gray-900">开启新体验</button>
       </div>
     </div>
   </div>
@@ -298,27 +372,19 @@ const UpdateModal = ({ onClose }) => (
 // --- 开屏动画 ---
 const SplashScreen = ({ onFinish }) => {
   const [step, setStep] = useState(0);
-
   useEffect(() => {
     setTimeout(() => setStep(1), 600);
     setTimeout(() => setStep(2), 1800);
     setTimeout(() => setStep(3), 3200);
     setTimeout(onFinish, 4000);
   }, []);
-
   if (step === 4) return null;
-
   return (
-    <div 
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white transition-opacity duration-1000 ${step === 3 ? 'opacity-0' : 'opacity-100'}`}
-    >
+    <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white transition-opacity duration-1000 ${step === 3 ? 'opacity-0' : 'opacity-100'}`}>
       <div className={`transition-all duration-1000 transform flex flex-col items-center ${step >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-        <div className="p-5 bg-gray-900 rounded-[2rem] mb-8 shadow-2xl">
-          <Feather className="w-16 h-16 text-white" />
-        </div>
+        <div className="p-5 bg-gray-900 rounded-[2rem] mb-8 shadow-2xl"><Feather className="w-16 h-16 text-white" /></div>
         <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">就这样备考</h1>
       </div>
-      
       <div className={`mt-6 transition-all duration-1000 delay-300 transform ${step >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
         <p className="text-sm font-medium text-gray-400 tracking-[0.2em] uppercase">你的专属定制化 App</p>
       </div>
@@ -326,12 +392,9 @@ const SplashScreen = ({ onFinish }) => {
   );
 };
 
-// --- 徽章展示组件 (修复白屏的关键) ---
+// --- 徽章展示组件 (点击可查看图鉴) ---
 const BadgeWall = ({ count, color }) => {
-  // 安全转换，防止 illegal length
   const safeCount = Math.max(0, parseInt(count) || 0);
-  
-  if (safeCount === 0) return null;
   return (
     <div className="flex flex-wrap justify-center gap-3 mt-8 animate-fadeIn max-w-[90%] mx-auto">
       {[...Array(safeCount)].map((_, i) => (
@@ -339,9 +402,9 @@ const BadgeWall = ({ count, color }) => {
           <Award className="w-6 h-6 drop-shadow-sm" style={{ color: color }} fill="currentColor" />
         </div>
       ))}
-      <div className="w-full text-center text-[10px] mt-3 opacity-50 font-medium tracking-wider">
-        已获得 {safeCount} 枚专注徽章
-      </div>
+      {safeCount === 0 && (
+        <div className="text-xs text-white/50 font-bold uppercase tracking-wider">暂无徽章，开始专注吧</div>
+      )}
     </div>
   );
 };
@@ -354,6 +417,7 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
   const [countdownInitial, setCountdownInitial] = useState(0);
   const [customMinutes, setCustomMinutes] = useState(30);
   const [historyMinutes, setHistoryMinutes] = useState(null); 
+  const [showLibrary, setShowLibrary] = useState(false);
   
   const startTimeRef = useRef(0);
   const endTimeRef = useRef(0);
@@ -388,7 +452,7 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
         setDisplaySeconds(elapsed);
         if (elapsed > 0 && elapsed % 3600 === 0) {
            onAddBadge();
-           new Notification("专注达成！", { body: "你太棒了！获得一枚徽章！" });
+           if(audioRef.current) audioRef.current.play().catch(()=>{});
         }
       } else {
         const remaining = Math.ceil((endTimeRef.current - now) / 1000);
@@ -427,7 +491,7 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
   };
 
   const formatTime = (totalSeconds) => {
-    const safeSeconds = Math.max(0, parseInt(totalSeconds) || 0); // Safety check
+    const safeSeconds = Math.max(0, parseInt(totalSeconds) || 0); 
     const hours = Math.floor(safeSeconds / 3600);
     const minutes = Math.floor((safeSeconds % 3600) / 60);
     const secs = safeSeconds % 60;
@@ -436,14 +500,16 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
 
   return (
     <div className="pb-24 space-y-6 animate-fadeIn">
+      {showLibrary && <BadgeLibraryModal currentBadges={badges} onClose={() => setShowLibrary(false)} theme={theme} />}
+
       <div 
-        className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden transition-all duration-500 flex flex-col items-center justify-center min-h-[400px]"
+        className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden transition-all duration-500 flex flex-col items-center justify-center min-h-[420px]"
         style={{ backgroundColor: theme.cardBg === '#FFFFFF' && theme.bg !== '#000000' ? '#FFFFFF' : theme.cardBg }}
       >
         <div className="absolute top-0 left-0 w-full h-1.5 opacity-20" style={{ backgroundColor: theme.accent }}></div>
         <div className="absolute bottom-0 right-0 w-32 h-32 rounded-full opacity-5 blur-3xl" style={{ backgroundColor: theme.accent }}></div>
         
-        <div className="flex justify-center gap-1 mb-12 bg-gray-100/50 p-1.5 rounded-full w-fit backdrop-blur-md">
+        <div className="flex justify-center gap-1 mb-8 bg-gray-100/50 p-1.5 rounded-full w-fit backdrop-blur-md">
           <button 
             onClick={() => { setMode('stopwatch'); setIsActive(false); setDisplaySeconds(0); }}
             className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${mode === 'stopwatch' ? 'bg-white shadow-md scale-100 text-black' : 'text-gray-400 hover:text-gray-600'}`}
@@ -458,20 +524,34 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
           </button>
         </div>
 
-        {/* 完美居中 + 响应式字体 (使用vw单位防止溢出) */}
-        <div className="flex flex-col items-center justify-center w-full text-center">
-          <div className="font-mono font-bold tracking-tight mb-4 tabular-nums drop-shadow-sm transition-colors w-full text-center" 
-               style={{ color: theme.text, fontSize: '13vw', lineHeight: '1.1' }}>
+        {/* 完美居中 + 智能缩放字体 (解决大屏溢出) */}
+        <div className="flex flex-col items-center justify-center w-full text-center mb-6">
+          <div className="font-mono font-bold tracking-tight tabular-nums drop-shadow-sm transition-colors w-full text-center" 
+               style={{ 
+                 color: theme.text, 
+                 fontSize: 'clamp(3rem, 12vw, 5.5rem)', // 关键修复：最小3rem，最大5.5rem，中间随屏幕宽自适应
+                 lineHeight: '1.1' 
+               }}>
             {formatTime(displaySeconds)}
           </div>
-          <p className="text-xs font-bold tracking-[0.2em] uppercase opacity-40 text-center w-full" style={{ color: theme.text }}>
+          <p className="text-xs font-bold tracking-[0.2em] uppercase opacity-40 text-center w-full mt-2" style={{ color: theme.text }}>
             {isActive ? (mode === 'stopwatch' ? '专 注 中' : '进 行 中') : '已 暂 停'}
           </p>
         </div>
 
-        {mode === 'stopwatch' && <BadgeWall count={badges} color={theme.badge} />}
+        {mode === 'stopwatch' && (
+          <div className="flex flex-col items-center w-full">
+            <BadgeWall count={badges} color={theme.badge} />
+            <button 
+              onClick={() => setShowLibrary(true)}
+              className="mt-4 text-[10px] font-bold px-3 py-1.5 rounded-full bg-gray-100/50 hover:bg-gray-100 text-gray-500 flex items-center gap-1 transition-colors"
+            >
+              <Award className="w-3 h-3" /> 查看徽章图鉴
+            </button>
+          </div>
+        )}
 
-        <div className="flex justify-center gap-8 items-center mt-12 w-full">
+        <div className="flex justify-center gap-8 items-center mt-10 w-full">
           <button 
             onClick={isActive ? pauseTimer : startTimer}
             className="w-20 h-20 rounded-full flex items-center justify-center text-white shadow-2xl active:scale-95 transition-all hover:scale-105"
@@ -494,7 +574,6 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
           <h3 className="font-bold mb-5 flex items-center gap-2 text-sm opacity-80" style={{ color: theme.text }}>
             <Clock className="w-4 h-4" style={{ color: theme.accent }} /> 模考时长选择
           </h3>
-          
           <div className="flex flex-wrap gap-3 mb-6">
             {presets.map(min => (
               <button
@@ -524,7 +603,6 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
               </button>
             )}
           </div>
-
           <div className="relative">
             <input 
               type="number" 
@@ -702,10 +780,11 @@ export default function ExamPrepApp() {
   const [xp, setXp] = useState(0);
   const [badges, setBadges] = useState(0);
   
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [confettiTrigger, setConfettiTrigger] = useState(0); // Use counter for trigger
   const [isEditingPlan, setIsEditingPlan] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showInstallHelp, setShowInstallHelp] = useState(false); // 控制安装指南
+  const [showMilestone, setShowMilestone] = useState(false); // 里程碑弹窗
 
   // --- 初始化与版本检测 ---
   useEffect(() => {
@@ -723,6 +802,9 @@ export default function ExamPrepApp() {
       generateSchedule(savedConfig.examType || 'kaogong');
     }
     setCompletedTasks(JSON.parse(localStorage.getItem('completed_tasks_v4') || '{}'));
+    // 恢复XP
+    const savedXp = parseInt(localStorage.getItem('user_xp_v4') || '0');
+    setXp(savedXp);
 
     // 检查版本号，显示更新弹窗
     const lastVersion = localStorage.getItem('app_version');
@@ -734,14 +816,12 @@ export default function ExamPrepApp() {
 
   // --- 动态设置状态栏颜色 (沉浸式体验) ---
   useEffect(() => {
-    // 改变浏览器/手机顶部的颜色
     let metaThemeColor = document.querySelector("meta[name='theme-color']");
     if (!metaThemeColor) {
       metaThemeColor = document.createElement("meta");
       metaThemeColor.name = "theme-color";
       document.head.appendChild(metaThemeColor);
     }
-    // 稍微调暗一点作为状态栏颜色，或者直接用主色
     metaThemeColor.content = theme.bg;
   }, [theme]);
 
@@ -779,7 +859,8 @@ export default function ExamPrepApp() {
     localStorage.setItem('user_config_v4', JSON.stringify(config));
     localStorage.setItem('user_schedule_v4', JSON.stringify(schedule));
     localStorage.setItem('completed_tasks_v4', JSON.stringify(completedTasks));
-  }, [theme, examType, customExamName, targetDate, badges, schedule, completedTasks]);
+    localStorage.setItem('user_xp_v4', xp.toString());
+  }, [theme, examType, customExamName, targetDate, badges, schedule, completedTasks, xp]);
 
   const daysLeft = useMemo(() => {
     const today = getBeijingDate();
@@ -792,14 +873,28 @@ export default function ExamPrepApp() {
 
   const currentDayData = schedule[0] || { tasks: [], quote: '' };
 
+  // --- XP 处理核心逻辑 ---
   const toggleTask = (dayIdx, taskIdx) => {
     const key = `${dayIdx}-${taskIdx}`;
-    const newState = !completedTasks[key];
+    const isComplete = !!completedTasks[key];
+    const newState = !isComplete; // Toggle state
+
     setCompletedTasks(prev => ({ ...prev, [key]: newState }));
+    
     if (newState) {
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 2500);
-      setXp(p => p + 50);
+      // 任务完成：加分 + 礼花 + 检查里程碑
+      setConfettiTrigger(Date.now()); // Update key to force re-render confetti
+      setXp(prev => {
+        const newXp = prev + 50;
+        // 检查里程碑 (每满 500 分)
+        if (newXp > 0 && newXp % 500 === 0) {
+          setShowMilestone(true);
+        }
+        return newXp;
+      });
+    } else {
+      // 任务取消：扣分 (最低0分)
+      setXp(prev => Math.max(0, prev - 50));
     }
   };
 
@@ -820,8 +915,9 @@ export default function ExamPrepApp() {
     <div className="min-h-screen font-sans max-w-md mx-auto relative shadow-2xl overflow-hidden" style={{ backgroundColor: theme.bg, color: theme.text }}>
       {showUpdateModal && <UpdateModal onClose={() => setShowUpdateModal(false)} />}
       {showInstallHelp && <InstallHelpModal onClose={() => setShowInstallHelp(false)} />}
+      {showMilestone && <MilestoneModal xp={xp} onClose={() => setShowMilestone(false)} />}
       
-      <Confetti active={showConfetti} />
+      <Confetti triggerKey={confettiTrigger} />
 
       {isEditingPlan && (
         <SmartPlanEditor 
