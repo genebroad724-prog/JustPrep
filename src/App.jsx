@@ -4,18 +4,18 @@ import {
   ChevronRight, Star, Flame, BarChart3, ChevronLeft, Award, 
   Dumbbell, Sun, Moon, Coffee, Brain, Zap, Timer, Play, Pause, RotateCcw,
   Bell, Smartphone, X, Landmark, GraduationCap, PenTool, Hash, Edit3, Save, Plus,
-  History, Palette, Sparkles, Layout, RefreshCw, Feather, Rocket, Check
+  History, Palette, Sparkles, Layout, RefreshCw, Feather, Rocket, Check, Share, Menu, Download
 } from 'lucide-react';
 
-// --- 版本号 (升级) ---
-const APP_VERSION = "v4.1"; 
+// --- 版本号 (升级触发弹窗) ---
+const APP_VERSION = "v4.2"; 
 
-// --- 更新日志内容 ---
+// --- 更新日志 ---
 const UPDATE_LOGS = [
-  { title: "视觉盛宴", desc: "全新庆典级礼花特效，每一次达成都是高光时刻。" },
-  { title: "交互升级", desc: "自定义备考项目完美融入，拒绝突兀，丝滑切换。" },
-  { title: "沉浸体验", desc: "修复顶部状态栏颜色同步问题，主题切换更彻底。" },
-  { title: "品牌焕新", desc: "启用全新「羽毛」图标，寓意轻盈备考，从容上岸。" }
+  { title: "安装指引", desc: "新增 iOS 与 Android 安装教程，手把手教你将 App 放入桌面。" },
+  { title: "视觉微调", desc: "优化礼花喷放质感，色彩更加饱满喜悦。" },
+  { title: "兼容升级", desc: "全面适配各类机型，交互体验更加丝滑稳定。" },
+  { title: "自定义优化", desc: "备考项目自定义功能增强，打造你的专属计划。" }
 ];
 
 // --- 励志文案库 ---
@@ -105,35 +105,36 @@ const getBeijingDate = () => {
   return new Date(utc + (3600000 * 8));
 };
 
-// --- 增强版礼花特效 ---
+// --- 增强版礼花特效 (高饱和度庆典色) ---
 const Confetti = ({ active }) => {
   if (!active) return null;
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-      {[...Array(60)].map((_, i) => (
+      {[...Array(80)].map((_, i) => (
         <div
           key={i}
           className="absolute animate-confetti"
           style={{
             left: '50%',
             top: '50%',
-            backgroundColor: ['#FF3B30', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#FF2D55'][Math.floor(Math.random() * 8)],
-            width: Math.random() * 8 + 4 + 'px',
-            height: Math.random() * 8 + 4 + 'px',
+            // 调整为更加鲜艳、喜悦的配色
+            backgroundColor: ['#FF2D55', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#FF3B30'][Math.floor(Math.random() * 8)],
+            width: Math.random() * 10 + 5 + 'px', // 稍微变大
+            height: Math.random() * 10 + 5 + 'px',
             borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-            '--x': (Math.random() - 0.5) * 200 + 'vw',
-            '--y': (Math.random() - 0.5) * 200 + 'vh',
+            '--x': (Math.random() - 0.5) * 180 + 'vw',
+            '--y': (Math.random() - 0.5) * 180 + 'vh',
             '--r': Math.random() * 720 + 'deg',
-            animationDelay: Math.random() * 0.2 + 's',
-            animationDuration: Math.random() * 1 + 1.5 + 's',
+            animationDelay: Math.random() * 0.1 + 's',
+            animationDuration: Math.random() * 1.2 + 1.5 + 's',
           }}
         />
       ))}
       <style>{`
         @keyframes confetti {
           0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-          10% { opacity: 1; }
-          100% { transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1); opacity: 0; }
+          15% { opacity: 1; }
+          100% { transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(0.5); opacity: 0; }
         }
         .animate-confetti {
           animation: confetti cubic-bezier(0.25, 1, 0.5, 1) forwards;
@@ -143,27 +144,112 @@ const Confetti = ({ active }) => {
   );
 };
 
-// --- 更新日志弹窗 ---
-const UpdateModal = ({ onClose, theme }) => (
-  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fadeIn p-6">
-    <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl animate-scaleIn">
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white text-center">
-        <Rocket className="w-12 h-12 mx-auto mb-2 animate-bounce" />
-        <h2 className="text-xl font-bold">就这样备考 {APP_VERSION}</h2>
-        <p className="text-xs opacity-80">您的专属备考神器已升级</p>
+// --- 安装教程弹窗 ---
+const InstallHelpModal = ({ onClose }) => {
+  const [tab, setTab] = useState('ios'); // 'ios' or 'android'
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn p-6">
+      <div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-scaleIn flex flex-col max-h-[80vh]">
+        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+            <Smartphone className="w-5 h-5 text-blue-500" /> 安装到手机
+          </h3>
+          <button onClick={onClose} className="p-2 bg-white rounded-full text-gray-400 hover:text-gray-600 shadow-sm"><X className="w-5 h-5"/></button>
+        </div>
+        
+        <div className="flex p-2 bg-gray-50 gap-2">
+          <button 
+            onClick={() => setTab('ios')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'ios' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+          >
+            苹果 iOS
+          </button>
+          <button 
+            onClick={() => setTab('android')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'android' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+          >
+            安卓 Android
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto bg-white flex-1">
+          {tab === 'ios' ? (
+            <div className="space-y-6">
+              <div className="flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold shrink-0">1</div>
+                <div>
+                  <p className="text-sm font-bold text-gray-800">使用 Safari 打开</p>
+                  <p className="text-xs text-gray-500 mt-1">必须使用系统自带的 Safari 浏览器打开本链接。</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold shrink-0">2</div>
+                <div>
+                  <p className="text-sm font-bold text-gray-800">点击“分享”按钮</p>
+                  <p className="text-xs text-gray-500 mt-1">点击浏览器底部中间的分享图标 <Share className="w-3 h-3 inline align-middle"/>。</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold shrink-0">3</div>
+                <div>
+                  <p className="text-sm font-bold text-gray-800">添加到主屏幕</p>
+                  <p className="text-xs text-gray-500 mt-1">向上滑动菜单，找到并点击“添加到主屏幕”。</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold shrink-0">1</div>
+                <div>
+                  <p className="text-sm font-bold text-gray-800">使用 Chrome 打开</p>
+                  <p className="text-xs text-gray-500 mt-1">推荐使用 Chrome 浏览器体验最佳。</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold shrink-0">2</div>
+                <div>
+                  <p className="text-sm font-bold text-gray-800">点击菜单</p>
+                  <p className="text-xs text-gray-500 mt-1">点击右上角的三个点图标 <Menu className="w-3 h-3 inline align-middle"/>。</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold shrink-0">3</div>
+                <div>
+                  <p className="text-sm font-bold text-gray-800">安装应用</p>
+                  <p className="text-xs text-gray-500 mt-1">点击“安装应用”或“添加到主屏幕”。</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-      <div className="p-6 space-y-4">
+    </div>
+  );
+};
+
+// --- 更新弹窗 ---
+const UpdateModal = ({ onClose }) => (
+  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn p-6">
+    <div className="bg-white rounded-[2rem] w-full max-w-xs overflow-hidden shadow-2xl animate-scaleIn">
+      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 text-white text-center relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8 blur-2xl"></div>
+        <Rocket className="w-10 h-10 mx-auto mb-3 animate-bounce" />
+        <h2 className="text-xl font-bold">就这样备考 {APP_VERSION}</h2>
+      </div>
+      <div className="p-6 space-y-4 max-h-[300px] overflow-y-auto">
         {UPDATE_LOGS.map((log, i) => (
           <div key={i} className="flex gap-3 items-start">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0"></div>
             <div>
               <h4 className="text-sm font-bold text-gray-800">{log.title}</h4>
-              <p className="text-xs text-gray-500 leading-relaxed">{log.desc}</p>
+              <p className="text-xs text-gray-500 leading-relaxed mt-0.5">{log.desc}</p>
             </div>
           </div>
         ))}
       </div>
-      <div className="p-6 pt-0">
+      <div className="p-6 pt-2">
         <button 
           onClick={onClose}
           className="w-full py-3.5 rounded-xl font-bold text-white shadow-lg active:scale-95 transition-transform bg-gray-900"
@@ -172,23 +258,19 @@ const UpdateModal = ({ onClose, theme }) => (
         </button>
       </div>
     </div>
-    <style>{`
-      @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-      .animate-scaleIn { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-    `}</style>
   </div>
 );
 
-// --- 开屏动画 (浮现效果) ---
+// --- 开屏动画 ---
 const SplashScreen = ({ onFinish }) => {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
     // 0: start, 1: line1 show, 2: line2 show, 3: fade out
-    setTimeout(() => setStep(1), 500);
-    setTimeout(() => setStep(2), 1500);
-    setTimeout(() => setStep(3), 3000);
-    setTimeout(onFinish, 3800);
+    setTimeout(() => setStep(1), 600);
+    setTimeout(() => setStep(2), 1800);
+    setTimeout(() => setStep(3), 3200);
+    setTimeout(onFinish, 4000);
   }, []);
 
   if (step === 4) return null;
@@ -197,38 +279,21 @@ const SplashScreen = ({ onFinish }) => {
     <div 
       className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white transition-opacity duration-1000 ${step === 3 ? 'opacity-0' : 'opacity-100'}`}
     >
-      <div className={`transition-all duration-1000 transform ${step >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-        <div className="p-4 bg-gray-900 rounded-3xl mb-6 shadow-2xl mx-auto w-fit">
-          <Feather className="w-12 h-12 text-white" />
+      <div className={`transition-all duration-1000 transform flex flex-col items-center ${step >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        <div className="p-5 bg-gray-900 rounded-[2rem] mb-8 shadow-2xl">
+          <Feather className="w-16 h-16 text-white" />
         </div>
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight text-center">就这样备考</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">就这样备考</h1>
       </div>
       
-      <div className={`mt-4 transition-all duration-1000 delay-300 transform ${step >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-        <p className="text-sm font-medium text-gray-500 tracking-widest uppercase">你的专属定制化 App</p>
+      <div className={`mt-6 transition-all duration-1000 delay-300 transform ${step >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        <p className="text-sm font-medium text-gray-400 tracking-[0.2em] uppercase">你的专属定制化 App</p>
       </div>
     </div>
   );
 };
 
-// --- 徽章展示组件 ---
-const BadgeWall = ({ count, color }) => {
-  if (count === 0) return null;
-  return (
-    <div className="flex flex-wrap justify-center gap-3 mt-8 animate-fadeIn max-w-[90%] mx-auto">
-      {[...Array(count)].map((_, i) => (
-        <div key={i} className="relative group animate-popIn" style={{ animationDelay: `${i * 0.05}s` }}>
-          <Award className="w-6 h-6 drop-shadow-sm" style={{ color: color }} fill="currentColor" />
-        </div>
-      ))}
-      <div className="w-full text-center text-[10px] mt-3 opacity-50 font-medium tracking-wider">
-        已获得 {count} 枚专注徽章
-      </div>
-    </div>
-  );
-};
-
-// --- 计时器组件 (完美居中修复 + 历史记忆) ---
+// --- 计时器组件 ---
 const TimerView = ({ theme, examType, badges, onAddBadge }) => {
   const [mode, setMode] = useState('stopwatch'); 
   const [isActive, setIsActive] = useState(false);
@@ -318,10 +383,10 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
   return (
     <div className="pb-24 space-y-6 animate-fadeIn">
       <div 
-        className="rounded-[2rem] p-8 shadow-xl relative overflow-hidden transition-all duration-500 flex flex-col items-center justify-center min-h-[360px]"
+        className="rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden transition-all duration-500 flex flex-col items-center justify-center min-h-[400px]"
         style={{ backgroundColor: theme.cardBg === '#FFFFFF' && theme.bg !== '#000000' ? '#FFFFFF' : theme.cardBg }}
       >
-        <div className="absolute top-0 left-0 w-full h-2 opacity-20" style={{ backgroundColor: theme.accent }}></div>
+        <div className="absolute top-0 left-0 w-full h-1.5 opacity-20" style={{ backgroundColor: theme.accent }}></div>
         <div className="absolute bottom-0 right-0 w-32 h-32 rounded-full opacity-5 blur-3xl" style={{ backgroundColor: theme.accent }}></div>
         
         <div className="flex justify-center gap-1 mb-12 bg-gray-100/50 p-1.5 rounded-full w-fit backdrop-blur-md">
@@ -339,9 +404,9 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
           </button>
         </div>
 
-        {/* 完美居中容器 - 修正偏移 */}
+        {/* 完美居中容器 */}
         <div className="flex flex-col items-center justify-center w-full text-center">
-          <div className="font-mono text-[4.5rem] leading-none font-bold tracking-tight mb-3 tabular-nums drop-shadow-sm transition-colors w-full text-center" style={{ color: theme.text }}>
+          <div className="font-mono text-[4.5rem] leading-none font-bold tracking-tight mb-4 tabular-nums drop-shadow-sm transition-colors w-full text-center" style={{ color: theme.text }}>
             {formatTime(displaySeconds)}
           </div>
           <p className="text-xs font-bold tracking-[0.2em] uppercase opacity-40 text-center w-full" style={{ color: theme.text }}>
@@ -573,7 +638,7 @@ export default function ExamPrepApp() {
   const [currentView, setCurrentView] = useState('dashboard');
   
   const [examType, setExamType] = useState('kaogong');
-  const [customExamName, setCustomExamName] = useState('自定义考试');
+  const [customExamName, setCustomExamName] = useState('自定义考试'); // 专门存储自定义名字
   const [targetDate, setTargetDate] = useState('2026-03-14');
   const [theme, setTheme] = useState(THEME_PRESETS[0]);
   
@@ -585,13 +650,14 @@ export default function ExamPrepApp() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isEditingPlan, setIsEditingPlan] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showInstallHelp, setShowInstallHelp] = useState(false); // 控制安装指南
 
   // --- 初始化与版本检测 ---
   useEffect(() => {
     const savedConfig = JSON.parse(localStorage.getItem('user_config_v4') || '{}');
     if (savedConfig.theme) setTheme(savedConfig.theme);
     if (savedConfig.examType) setExamType(savedConfig.examType);
-    if (savedConfig.customExamName) setCustomExamName(savedConfig.customExamName);
+    if (savedConfig.customExamName) setCustomExamName(savedConfig.customExamName); // 读取自定义名
     if (savedConfig.targetDate) setTargetDate(savedConfig.targetDate);
     if (savedConfig.badges) setBadges(savedConfig.badges);
     
@@ -690,7 +756,8 @@ export default function ExamPrepApp() {
 
   return (
     <div className="min-h-screen font-sans max-w-md mx-auto relative shadow-2xl overflow-hidden" style={{ backgroundColor: theme.bg, color: theme.text }}>
-      {showUpdateModal && <UpdateModal onClose={() => setShowUpdateModal(false)} theme={theme} />}
+      {showUpdateModal && <UpdateModal onClose={() => setShowUpdateModal(false)} />}
+      {showInstallHelp && <InstallHelpModal onClose={() => setShowInstallHelp(false)} />}
       
       <Confetti active={showConfetti} />
 
@@ -903,10 +970,16 @@ export default function ExamPrepApp() {
                   </div>
                 </section>
                 
-                <div className="text-center pt-8 pb-4">
+                <div className="text-center pt-8 pb-4 space-y-3">
+                  <button 
+                    onClick={() => setShowInstallHelp(true)}
+                    className="text-xs flex items-center justify-center gap-2 mx-auto text-blue-500 font-bold bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-colors"
+                  >
+                    <Download className="w-3 h-3" /> 如何安装到手机?
+                  </button>
                   <button 
                     onClick={handleRefresh}
-                    className="text-xs flex items-center justify-center gap-2 mx-auto text-gray-400 font-bold bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors"
+                    className="text-[10px] flex items-center justify-center gap-1 mx-auto text-gray-400 font-medium hover:text-gray-600 transition-colors"
                   >
                     <RefreshCw className="w-3 h-3" /> 检查更新 ({APP_VERSION})
                   </button>
@@ -951,6 +1024,8 @@ export default function ExamPrepApp() {
         .animate-slideDown { animation: slideDown 0.5s ease-out forwards; }
         @keyframes popIn { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
         .animate-popIn { animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-scaleIn { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
         .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
       `}</style>
     </div>
