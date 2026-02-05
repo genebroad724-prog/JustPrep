@@ -8,14 +8,14 @@ import {
 } from 'lucide-react';
 
 // --- 版本号 (升级触发弹窗) ---
-const APP_VERSION = "v4.3"; 
+const APP_VERSION = "v4.4"; 
 
 // --- 更新日志 ---
 const UPDATE_LOGS = [
-  { title: "安装指引", desc: "新增可视化安装指南卡片，支持截图分享。" },
-  { title: "视觉微调", desc: "优化礼花喷放质感，色彩更加饱满喜悦。" },
-  { title: "兼容升级", desc: "全面适配各类机型，交互体验更加丝滑稳定。" },
-  { title: "自定义优化", desc: "备考项目自定义功能增强，打造你的专属计划。" }
+  { title: "安卓适配", desc: "修复了安卓设备字体自动放大导致的排版错乱问题。" },
+  { title: "布局修复", desc: "计时器数字现已自适应屏幕宽度，完美居中不溢出。" },
+  { title: "视觉升级", desc: "礼花特效全面增强，盛大绽放，庆祝你的每一次坚持。" },
+  { title: "细节优化", desc: "设置选项增加精致边框，首页文案显示更完整。" }
 ];
 
 // --- 励志文案库 ---
@@ -105,34 +105,36 @@ const getBeijingDate = () => {
   return new Date(utc + (3600000 * 8));
 };
 
-// --- 增强版礼花特效 ---
+// --- 盛大版礼花特效 ---
 const Confetti = ({ active }) => {
   if (!active) return null;
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-      {[...Array(80)].map((_, i) => (
+      {[...Array(150)].map((_, i) => (
         <div
           key={i}
           className="absolute animate-confetti"
           style={{
             left: '50%',
             top: '50%',
+            // 高饱和度庆典色
             backgroundColor: ['#FF2D55', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#FF3B30'][Math.floor(Math.random() * 8)],
-            width: Math.random() * 10 + 5 + 'px',
-            height: Math.random() * 10 + 5 + 'px',
+            width: Math.random() * 12 + 6 + 'px',
+            height: Math.random() * 12 + 6 + 'px',
             borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-            '--x': (Math.random() - 0.5) * 180 + 'vw',
-            '--y': (Math.random() - 0.5) * 180 + 'vh',
+            // 扩大喷发范围
+            '--x': (Math.random() - 0.5) * 250 + 'vw',
+            '--y': (Math.random() - 0.5) * 250 + 'vh',
             '--r': Math.random() * 720 + 'deg',
-            animationDelay: Math.random() * 0.1 + 's',
-            animationDuration: Math.random() * 1.2 + 1.5 + 's',
+            animationDelay: Math.random() * 0.2 + 's',
+            animationDuration: Math.random() * 1.5 + 2 + 's',
           }}
         />
       ))}
       <style>{`
         @keyframes confetti {
           0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-          15% { opacity: 1; }
+          10% { opacity: 1; }
           100% { transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(0.5); opacity: 0; }
         }
         .animate-confetti {
@@ -143,13 +145,11 @@ const Confetti = ({ active }) => {
   );
 };
 
-// --- 安装教程弹窗 (海报式重构) ---
+// --- 安装教程弹窗 (海报式) ---
 const InstallHelpModal = ({ onClose }) => {
   const [tab, setTab] = useState('ios'); 
-
-  // 动态样式配置
   const isIOS = tab === 'ios';
-  const themeColor = isIOS ? '#007AFF' : '#10B981'; // 苹果蓝 vs 安卓绿
+  const themeColor = isIOS ? '#007AFF' : '#10B981'; 
   const themeBg = isIOS ? 'bg-blue-50' : 'bg-green-50';
   const themeText = isIOS ? 'text-blue-600' : 'text-green-600';
   const themeBorder = isIOS ? 'border-blue-100' : 'border-green-100';
@@ -157,7 +157,6 @@ const InstallHelpModal = ({ onClose }) => {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fadeIn p-4">
       <div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-scaleIn flex flex-col max-h-[85vh]">
-        {/* 顶部标签栏 */}
         <div className="flex p-1.5 bg-gray-100 mx-4 mt-4 rounded-xl">
           <button 
             onClick={() => setTab('ios')}
@@ -173,7 +172,6 @@ const InstallHelpModal = ({ onClose }) => {
           </button>
         </div>
 
-        {/* 海报主体内容 */}
         <div className="p-6 overflow-y-auto flex-1">
           <div className="text-center mb-6">
             <h3 className="text-xl font-extrabold text-gray-900 mb-1">
@@ -183,11 +181,10 @@ const InstallHelpModal = ({ onClose }) => {
           </div>
 
           <div className="space-y-4">
-            {/* 步骤 1 */}
             <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative group`}>
               <div className={`absolute -left-2 -top-2 w-6 h-6 rounded-full ${isIOS ? 'bg-blue-600' : 'bg-green-600'} text-white flex items-center justify-center text-xs font-bold shadow-sm`}>1</div>
               <div className={`p-2 bg-white rounded-xl shadow-sm ${themeText}`}>
-                {isIOS ? <Compass className="w-6 h-6" /> : <img src="/vite.svg" className="w-6 h-6 grayscale opacity-50" alt="browser" /> /* 模拟Chrome图标 */}
+                {isIOS ? <Compass className="w-6 h-6" /> : <img src="/vite.svg" className="w-6 h-6 grayscale opacity-50" alt="browser" />}
                 {!isIOS && <div className="absolute inset-0 flex items-center justify-center"><div className="w-4 h-4 rounded-full border-2 border-current"></div></div>}
               </div>
               <div className="flex-1">
@@ -200,7 +197,6 @@ const InstallHelpModal = ({ onClose }) => {
               </div>
             </div>
 
-            {/* 步骤 2 */}
             <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative`}>
               <div className={`absolute -left-2 -top-2 w-6 h-6 rounded-full ${isIOS ? 'bg-blue-600' : 'bg-green-600'} text-white flex items-center justify-center text-xs font-bold shadow-sm`}>2</div>
               <div className={`p-2 bg-white rounded-xl shadow-sm ${themeText}`}>
@@ -216,7 +212,6 @@ const InstallHelpModal = ({ onClose }) => {
               </div>
             </div>
 
-            {/* 步骤 3 */}
             <div className={`p-4 rounded-2xl border-2 ${themeBorder} ${themeBg} flex gap-4 items-start relative`}>
               <div className={`absolute -left-2 -top-2 w-6 h-6 rounded-full ${isIOS ? 'bg-blue-600' : 'bg-green-600'} text-white flex items-center justify-center text-xs font-bold shadow-sm`}>3</div>
               <div className={`p-2 bg-white rounded-xl shadow-sm ${themeText}`}>
@@ -233,7 +228,6 @@ const InstallHelpModal = ({ onClose }) => {
             </div>
           </div>
 
-          {/* 底部注意事项 */}
           <div className="mt-6 bg-yellow-50 border border-yellow-100 p-4 rounded-2xl flex gap-3 items-start">
             <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
             <div>
@@ -318,9 +312,7 @@ const SplashScreen = ({ onFinish }) => {
 
 // --- 徽章展示组件 (修复白屏的关键) ---
 const BadgeWall = ({ count, color }) => {
-  // 安全转换，防止 illegal length
   const safeCount = Math.max(0, parseInt(count) || 0);
-  
   if (safeCount === 0) return null;
   return (
     <div className="flex flex-wrap justify-center gap-3 mt-8 animate-fadeIn max-w-[90%] mx-auto">
@@ -336,7 +328,7 @@ const BadgeWall = ({ count, color }) => {
   );
 };
 
-// --- 计时器组件 ---
+// --- 计时器组件 (安卓溢出完美修复) ---
 const TimerView = ({ theme, examType, badges, onAddBadge }) => {
   const [mode, setMode] = useState('stopwatch'); 
   const [isActive, setIsActive] = useState(false);
@@ -448,9 +440,10 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
           </button>
         </div>
 
-        {/* 完美居中容器 */}
+        {/* 完美居中 + 响应式字体 (使用vw单位防止溢出) */}
         <div className="flex flex-col items-center justify-center w-full text-center">
-          <div className="font-mono text-[4.5rem] leading-none font-bold tracking-tight mb-4 tabular-nums drop-shadow-sm transition-colors w-full text-center" style={{ color: theme.text }}>
+          <div className="font-mono font-bold tracking-tight mb-4 tabular-nums drop-shadow-sm transition-colors w-full text-center" 
+               style={{ color: theme.text, fontSize: '13vw', lineHeight: '1.1' }}>
             {formatTime(displaySeconds)}
           </div>
           <p className="text-xs font-bold tracking-[0.2em] uppercase opacity-40 text-center w-full" style={{ color: theme.text }}>
@@ -861,8 +854,8 @@ export default function ExamPrepApp() {
                      <Trophy className="w-8 h-8" style={{ color: theme.badge }} />
                    </div>
                  </div>
-                 <div className="mt-4 pt-4 border-t border-black/5">
-                   <p className="text-xs font-medium opacity-70 truncate" style={{ color: theme.text }}>"{currentDayData.quote}"</p>
+                 <div className="mt-4 pt-4 border-t border-black/5 text-left w-full">
+                   <p className="text-sm font-medium opacity-90 leading-relaxed break-words" style={{ color: theme.text }}>"{currentDayData.quote}"</p>
                  </div>
                </div>
 
@@ -945,7 +938,7 @@ export default function ExamPrepApp() {
                       <button
                         key={key}
                         onClick={() => { setExamType(key); generateSchedule(key); }}
-                        className={`p-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all relative overflow-hidden ${examType === key ? 'bg-gray-50' : 'bg-transparent border-transparent hover:bg-gray-50'}`}
+                        className={`p-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all relative overflow-hidden ${examType === key ? 'bg-gray-50' : 'bg-transparent border-gray-200 hover:bg-gray-50'}`}
                         style={examType === key ? { borderColor: theme.accent } : {}}
                       >
                         <config.icon className="w-6 h-6" style={{ color: examType === key ? theme.accent : '#ccc' }} />
