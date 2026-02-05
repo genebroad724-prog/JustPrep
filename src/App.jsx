@@ -4,11 +4,19 @@ import {
   ChevronRight, Star, Flame, BarChart3, ChevronLeft, Award, 
   Dumbbell, Sun, Moon, Coffee, Brain, Zap, Timer, Play, Pause, RotateCcw,
   Bell, Smartphone, X, Landmark, GraduationCap, PenTool, Hash, Edit3, Save, Plus,
-  History, Palette, Sparkles, Layout, RefreshCw, Feather
+  History, Palette, Sparkles, Layout, RefreshCw, Feather, Rocket, Check
 } from 'lucide-react';
 
-// --- 版本号 ---
-const APP_VERSION = "v4.0"; 
+// --- 版本号 (升级) ---
+const APP_VERSION = "v4.1"; 
+
+// --- 更新日志内容 ---
+const UPDATE_LOGS = [
+  { title: "视觉盛宴", desc: "全新庆典级礼花特效，每一次达成都是高光时刻。" },
+  { title: "交互升级", desc: "自定义备考项目完美融入，拒绝突兀，丝滑切换。" },
+  { title: "沉浸体验", desc: "修复顶部状态栏颜色同步问题，主题切换更彻底。" },
+  { title: "品牌焕新", desc: "启用全新「羽毛」图标，寓意轻盈备考，从容上岸。" }
+];
 
 // --- 励志文案库 ---
 const MOTIVATIONAL_QUOTES = [
@@ -24,7 +32,7 @@ const MOTIVATIONAL_QUOTES = [
   "种一棵树最好的时间是十年前，其次是现在。"
 ];
 
-// --- 默认配置模板 (新增自定义) ---
+// --- 默认配置模板 ---
 const DEFAULT_CONFIGS = {
   kaogong: {
     id: 'kaogong',
@@ -70,7 +78,7 @@ const DEFAULT_CONFIGS = {
   },
   custom: {
     id: 'custom',
-    name: '自定义考试', // 用户可修改
+    name: '自定义考试', 
     icon: PenTool,
     countdownPresets: [60, 90, 120],
     defaultPlan: [
@@ -80,7 +88,7 @@ const DEFAULT_CONFIGS = {
   }
 };
 
-// --- 高级主题预设 (全新审美) ---
+// --- 高级主题预设 ---
 const THEME_PRESETS = [
   { name: '极简白 (Minimalist)', primary: '#FFFFFF', accent: '#007AFF', badge: '#FF9500', text: '#1D1D1F', bg: '#F2F2F7', cardBg: '#FFFFFF' },
   { name: '暗夜黑 (Midnight)', primary: '#1C1C1E', accent: '#0A84FF', badge: '#FFD60A', text: '#F5F5F7', bg: '#000000', cardBg: '#1C1C1E' },
@@ -96,6 +104,80 @@ const getBeijingDate = () => {
   const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
   return new Date(utc + (3600000 * 8));
 };
+
+// --- 增强版礼花特效 ---
+const Confetti = ({ active }) => {
+  if (!active) return null;
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+      {[...Array(60)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute animate-confetti"
+          style={{
+            left: '50%',
+            top: '50%',
+            backgroundColor: ['#FF3B30', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#FF2D55'][Math.floor(Math.random() * 8)],
+            width: Math.random() * 8 + 4 + 'px',
+            height: Math.random() * 8 + 4 + 'px',
+            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+            '--x': (Math.random() - 0.5) * 200 + 'vw',
+            '--y': (Math.random() - 0.5) * 200 + 'vh',
+            '--r': Math.random() * 720 + 'deg',
+            animationDelay: Math.random() * 0.2 + 's',
+            animationDuration: Math.random() * 1 + 1.5 + 's',
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes confetti {
+          0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+          10% { opacity: 1; }
+          100% { transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1); opacity: 0; }
+        }
+        .animate-confetti {
+          animation: confetti cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+// --- 更新日志弹窗 ---
+const UpdateModal = ({ onClose, theme }) => (
+  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fadeIn p-6">
+    <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl animate-scaleIn">
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white text-center">
+        <Rocket className="w-12 h-12 mx-auto mb-2 animate-bounce" />
+        <h2 className="text-xl font-bold">就这样备考 {APP_VERSION}</h2>
+        <p className="text-xs opacity-80">您的专属备考神器已升级</p>
+      </div>
+      <div className="p-6 space-y-4">
+        {UPDATE_LOGS.map((log, i) => (
+          <div key={i} className="flex gap-3 items-start">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0"></div>
+            <div>
+              <h4 className="text-sm font-bold text-gray-800">{log.title}</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">{log.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="p-6 pt-0">
+        <button 
+          onClick={onClose}
+          className="w-full py-3.5 rounded-xl font-bold text-white shadow-lg active:scale-95 transition-transform bg-gray-900"
+        >
+          开启新体验
+        </button>
+      </div>
+    </div>
+    <style>{`
+      @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+      .animate-scaleIn { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    `}</style>
+  </div>
+);
 
 // --- 开屏动画 (浮现效果) ---
 const SplashScreen = ({ onFinish }) => {
@@ -239,7 +321,6 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
         className="rounded-[2rem] p-8 shadow-xl relative overflow-hidden transition-all duration-500 flex flex-col items-center justify-center min-h-[360px]"
         style={{ backgroundColor: theme.cardBg === '#FFFFFF' && theme.bg !== '#000000' ? '#FFFFFF' : theme.cardBg }}
       >
-        {/* 背景装饰 */}
         <div className="absolute top-0 left-0 w-full h-2 opacity-20" style={{ backgroundColor: theme.accent }}></div>
         <div className="absolute bottom-0 right-0 w-32 h-32 rounded-full opacity-5 blur-3xl" style={{ backgroundColor: theme.accent }}></div>
         
@@ -258,12 +339,12 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
           </button>
         </div>
 
-        {/* 完美居中容器 */}
-        <div className="flex flex-col items-center justify-center w-full">
-          <div className="font-mono text-[4.5rem] leading-none font-bold tracking-tight mb-3 tabular-nums drop-shadow-sm transition-colors text-center w-full" style={{ color: theme.text }}>
+        {/* 完美居中容器 - 修正偏移 */}
+        <div className="flex flex-col items-center justify-center w-full text-center">
+          <div className="font-mono text-[4.5rem] leading-none font-bold tracking-tight mb-3 tabular-nums drop-shadow-sm transition-colors w-full text-center" style={{ color: theme.text }}>
             {formatTime(displaySeconds)}
           </div>
-          <p className="text-xs font-bold tracking-[0.2em] uppercase opacity-40" style={{ color: theme.text }}>
+          <p className="text-xs font-bold tracking-[0.2em] uppercase opacity-40 text-center w-full" style={{ color: theme.text }}>
             {isActive ? (mode === 'stopwatch' ? '专 注 中' : '进 行 中') : '已 暂 停'}
           </p>
         </div>
@@ -309,7 +390,6 @@ const TimerView = ({ theme, examType, badges, onAddBadge }) => {
                 {min}分
               </button>
             ))}
-            {/* 历史记录按钮 */}
             {historyMinutes && !presets.includes(historyMinutes) && (
               <button
                 onClick={() => setPreset(historyMinutes)}
@@ -493,7 +573,7 @@ export default function ExamPrepApp() {
   const [currentView, setCurrentView] = useState('dashboard');
   
   const [examType, setExamType] = useState('kaogong');
-  const [customExamName, setCustomExamName] = useState('自定义考试'); // 专门存储自定义名字
+  const [customExamName, setCustomExamName] = useState('自定义考试');
   const [targetDate, setTargetDate] = useState('2026-03-14');
   const [theme, setTheme] = useState(THEME_PRESETS[0]);
   
@@ -504,13 +584,14 @@ export default function ExamPrepApp() {
   
   const [showConfetti, setShowConfetti] = useState(false);
   const [isEditingPlan, setIsEditingPlan] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
-  // --- 初始化 ---
+  // --- 初始化与版本检测 ---
   useEffect(() => {
     const savedConfig = JSON.parse(localStorage.getItem('user_config_v4') || '{}');
     if (savedConfig.theme) setTheme(savedConfig.theme);
     if (savedConfig.examType) setExamType(savedConfig.examType);
-    if (savedConfig.customExamName) setCustomExamName(savedConfig.customExamName); // 读取自定义名
+    if (savedConfig.customExamName) setCustomExamName(savedConfig.customExamName);
     if (savedConfig.targetDate) setTargetDate(savedConfig.targetDate);
     if (savedConfig.badges) setBadges(savedConfig.badges);
     
@@ -521,7 +602,27 @@ export default function ExamPrepApp() {
       generateSchedule(savedConfig.examType || 'kaogong');
     }
     setCompletedTasks(JSON.parse(localStorage.getItem('completed_tasks_v4') || '{}'));
+
+    // 检查版本号，显示更新弹窗
+    const lastVersion = localStorage.getItem('app_version');
+    if (lastVersion !== APP_VERSION) {
+      setShowUpdateModal(true);
+      localStorage.setItem('app_version', APP_VERSION);
+    }
   }, []);
+
+  // --- 动态设置状态栏颜色 (沉浸式体验) ---
+  useEffect(() => {
+    // 改变浏览器/手机顶部的颜色
+    let metaThemeColor = document.querySelector("meta[name='theme-color']");
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement("meta");
+      metaThemeColor.name = "theme-color";
+      document.head.appendChild(metaThemeColor);
+    }
+    // 稍微调暗一点作为状态栏颜色，或者直接用主色
+    metaThemeColor.content = theme.bg;
+  }, [theme]);
 
   // --- 自动提醒 ---
   useEffect(() => {
@@ -585,26 +686,13 @@ export default function ExamPrepApp() {
 
   if (loading) return <SplashScreen onFinish={() => setLoading(false)} />;
 
-  // 获取当前考试名称（如果是自定义，则使用用户输入的名字）
   const currentExamName = examType === 'custom' ? customExamName : DEFAULT_CONFIGS[examType]?.name;
 
   return (
     <div className="min-h-screen font-sans max-w-md mx-auto relative shadow-2xl overflow-hidden" style={{ backgroundColor: theme.bg, color: theme.text }}>
-      {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-          {[...Array(50)].map((_, i) => (
-            <div key={i} className="absolute animate-fall w-3 h-3 rounded-full" 
-              style={{
-                left: `${Math.random() * 100}%`, top: `-20px`,
-                animationDuration: `${Math.random() * 2 + 1}s`,
-                // 庆典配色：鲜艳红、亮黄、荧光绿、电光蓝、猛男粉
-                backgroundColor: ['#FF2D55', '#FFCC00', '#4CD964', '#007AFF', '#FF3B30', '#5856D6'][Math.floor(Math.random()*6)]
-              }} 
-            />
-          ))}
-          <style>{`@keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } } .animate-fall { animation: fall linear forwards; }`}</style>
-        </div>
-      )}
+      {showUpdateModal && <UpdateModal onClose={() => setShowUpdateModal(false)} theme={theme} />}
+      
+      <Confetti active={showConfetti} />
 
       {isEditingPlan && (
         <SmartPlanEditor 
@@ -621,7 +709,7 @@ export default function ExamPrepApp() {
            <div className="flex justify-between items-center mb-8 animate-slideDown">
              <div className="flex items-center gap-3">
                <div className="p-2.5 rounded-2xl shadow-lg transition-transform hover:scale-105" style={{ backgroundColor: theme.primary }}>
-                 <Layout className="w-6 h-6" style={{ color: theme.accent }} />
+                 <Feather className="w-6 h-6" style={{ color: theme.accent }} />
                </div>
                <div>
                  <h1 className="font-extrabold text-xl leading-none tracking-tight" style={{ color: theme.text }}>
@@ -731,6 +819,7 @@ export default function ExamPrepApp() {
 
            {currentView === 'settings' && (
              <div className="space-y-8 animate-fadeIn pb-24">
+                {/* 备考项目与自定义 */}
                 <section className="bg-white p-6 rounded-[2rem] shadow-sm">
                   <h3 className="font-bold mb-4 text-gray-900 text-lg">备考项目</h3>
                   <div className="grid grid-cols-2 gap-3 mb-4">
@@ -738,24 +827,31 @@ export default function ExamPrepApp() {
                       <button
                         key={key}
                         onClick={() => { setExamType(key); generateSchedule(key); }}
-                        className={`p-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all ${examType === key ? 'bg-gray-50' : 'bg-transparent border-transparent hover:bg-gray-50'}`}
+                        className={`p-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all relative overflow-hidden ${examType === key ? 'bg-gray-50' : 'bg-transparent border-transparent hover:bg-gray-50'}`}
                         style={examType === key ? { borderColor: theme.accent } : {}}
                       >
                         <config.icon className="w-6 h-6" style={{ color: examType === key ? theme.accent : '#ccc' }} />
-                        <span className="text-xs font-bold text-gray-600">{config.name}</span>
+                        <span className="text-xs font-bold text-gray-600 z-10">{config.name}</span>
+                        {key === 'custom' && examType === 'custom' && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity">
+                            <span className="text-xs font-bold text-blue-500">点击编辑名称</span>
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
                   
+                  {/* 自定义名称编辑框 (优化样式) */}
                   {examType === 'custom' && (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <label className="text-xs font-bold text-gray-400 block mb-2">自定义考试名称</label>
-                      <div className="flex gap-2">
+                    <div className="animate-slideUp bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center gap-3">
+                      <PenTool className="w-5 h-5 text-gray-400" />
+                      <div className="flex-1">
+                        <label className="text-[10px] font-bold text-gray-400 block mb-1 uppercase tracking-wider">Custom Exam Name</label>
                         <input 
                           type="text" 
                           value={customExamName}
                           onChange={(e) => setCustomExamName(e.target.value)}
-                          className="flex-1 bg-gray-50 border-0 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-gray-200"
+                          className="w-full bg-transparent border-b-2 border-gray-200 py-1 text-sm font-bold text-gray-800 outline-none focus:border-blue-500 transition-colors"
                           placeholder="例如：注册会计师"
                         />
                       </div>

@@ -2,20 +2,22 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <!-- 禁止用户缩放，更像原生App -->
+    
+    <!-- 这里指定了我们的新图标 -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
-    <!-- PWA 配置 -->
+    <!-- 引入 Manifest -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#D7C4A6" />
+    <!-- 这里的颜色 #111827 对应我们新图标的深色背景，保证状态栏沉浸 -->
+    <meta name="theme-color" content="#111827" />
     
-    <title>山西省考突击</title>
+    <title>就这样备考</title>
   </head>
   <body>
-    <!-- 关键！React 就住在这个 id="root" 的房间里 -->
     <div id="root"></div>
-    <!-- 引入总开关 -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
